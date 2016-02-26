@@ -1,0 +1,86 @@
+# Functionality
+    - download fastq data from ENCODE
+    - map to genome (BAM)
+        - map to genome with RNA-Star (and identify new exons)
+        - identify novel junctions (JunctionSeq)
+        - merge discovered junctions and create reference GTF
+            - automatic with merge_??? from tophat
+            - manually check intermediate output of DEXSeq,
+              check if exons binned correctly and fix problematic ones)
+        - remap all using new GTF
+    - identification of differential exon usage (DEXSeq, csv)
+
+    - merge DEXseq results into summary files
+        - tables with counts
+        - tables with differential expression
+
+
+# Update loop
+    1. scan for new RNA-Seq data in encode
+        if new, send email
+        else return to 1
+    2. process new data:
+        - map and discover new junctions and merge with current GTF
+        - show changes in exon binning by DEXSeq
+    3. user manually checks novel junctions and correctness of DEXSeq binning,
+       updates GTF and DEXSeq binning if needed
+    4. if GTF changes then:
+        - store new version of GTF and DEXSeq binning
+        - remap all data to genome using updated GTF
+        - rerun DEXSeq for differential exon usage
+        - update summary files
+    return to 1
+
+
+# Architecture
+
+Docker - queue, workers
+    ENCODE API
+    RNA-Star
+    DEXSeq
+    JunctionSeq
+
+NFS
+    data
+        - inputs are FASTQ files
+    genome
+        - sequence and mapper index
+    results
+        - one folder for each "project" (project is reference genome +
+          starting GTF on top of which we build refined GTFs)
+        - each project has subfolders, one for each update, where refined
+          GTF, bins and csv files are stored.
+          It may contain a temporary folder with intermediate results
+          (mapping, DEXSeq outputs), which we delete periodically.
+
+
+# Software interfaces
+
+RNA-Star
+    - FASTQ + GTF -> BAM
+
+JunctionSeq
+    - BAM + GTF -> new GTF
+
+DEXSeq, two functions:
+    - GTF -> bins
+    - bins + bam + pval threshold -> csv
+
+merge GTF: tophat tool? check if ok
+
+merge csv: script in Python
+    - multiple csv -> merged csv
+
+encode
+    - API to encode site
+    - called regularly to check for new RNA-Seq data and send email
+
+queue.py
+    - feeds workers with job requests
+
+worker.py
+
+01_check_encode.py
+02_map_discover.py
+03_report_diffs.py
+04_summarize.py
