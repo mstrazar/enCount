@@ -16,15 +16,37 @@
 
 
 # Update loop
-    1. scan for new RNA-Seq data in encode
-        if new, send email
+    1. scan for new RNA-Seq data in ENCODE and process, two queues are run in
+       parallel:
+            queue A: scan for new RNA-Seq data to download
+                after fastq file is downloaded, add mapping task to queue B
+            queue B: map and discover new junctions
+                after mapping, add merge task to queue C
+            queue C: merge new junctions into current GTF
+
+       Send email notification whenever a queue becomes empty or non-empty.
+
+       When all queues become empty (but were non-empty at last check):
+            a) stop adding to queues
+            b) compare current and latest GTF for changes
+            c) if changed:
+                d) RUN dexseq on current GTF to get binning
+                e) compare current and latest binning
+                f) if changed:
+                    g) store
+
+
+        if new:
+            a) download all new RNA-Seq data
+            b) notify by email that mapping started
+            c) map and discover new junctions and merge with current GTF
+            e) notify by email of new merged GTF and binned file
+               attached changes in GTFs and exon binning
         else return to 1
-    2. process new data:
-        - map and discover new junctions and merge with current GTF
-        - show changes in exon binning by DEXSeq
-    3. user manually checks novel junctions and correctness of DEXSeq binning,
+
+    2. user manually checks novel junctions and correctness of DEXSeq binning,
        updates GTF and DEXSeq binning if needed
-    4. if GTF changes then:
+    3. if GTF or binning changed then:
         - store new version of GTF and DEXSeq binning
         - remap all data to genome using updated GTF
         - rerun DEXSeq for differential exon usage

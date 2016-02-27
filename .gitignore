@@ -63,3 +63,5 @@ target/
 
 #PyCharm
 .idea
+
+enCount/_version.py
