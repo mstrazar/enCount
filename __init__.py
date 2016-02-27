@@ -11,4 +11,4 @@ try:
     from .myconfig import *
 except ImportError:
     print(u'enCount: Warning, please define local config in myconfig.py and '
-          u'store it to folder: {0:s}.'.format(_config_root))
+          u'store it to folder: {s}.'.format(_config_root))
