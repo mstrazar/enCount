@@ -8,7 +8,7 @@ enCount is a Python library for processing RNA-Seq data from ENCODE.
 
 import os
 
-from ._version import __version__
+# from ._version import __version__
 from . import encode
 from . import externals
 
