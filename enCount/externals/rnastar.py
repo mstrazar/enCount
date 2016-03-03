@@ -3,7 +3,7 @@ import glob
 import os
 
 from .myconfig import NUM_THREADS
-from .myconfig import EXECUTABLE_STAR
+from .myconfig import STAR_EXECUTABLE
 from .myconfig import GENOME_DIR
 from .myconfig import GENOME_FASTA_DIR
 
@@ -19,7 +19,7 @@ def run_star_generate_genome(in_gtf, read_length=100):
     fastas = " ".join(glob.glob(os.path.join(GENOME_FASTA_DIR, "*.fa.gz")))
     assert len(fastas)
 
-    args = [
+    args = [STAR_EXECUTABLE,
         "--runThreadN", NUM_THREADS,
         "--runMode", "genomeGenerate",
         "--genomeDir", GENOME_DIR,
@@ -46,16 +46,15 @@ def run_star(in_fastq, out_dir):
         :param out_dir
             Prefix for the output directory.
 
-
     """
     assert in_fastq.endswith(".fastq.gz") or in_fastq.endswith(".fastq")
 
-    args = ["STAR",
+    args = [STAR_EXECUTABLE,
             "--readFilesIn", in_fastq,
             "--genomeDir", GENOME_DIR,
             "--runThreadN", NUM_THREADS,
             "--outFileNamePrefix", out_dir,
-            "--outSAMtype", "SortedByCoordinate",]
+            "--outSAMtype", "BAM", "SortedByCoordinate",]
 
     if in_fastq.endswith(".gz"):
         args.append("--readFilesCommand")
