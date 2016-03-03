@@ -3,18 +3,13 @@ import subprocess
 import glob
 import os
 
-from .myconfig import NUM_THREADS
-from .myconfig import QORTS_EXECUTABLE
-from .myconfig import QORTS_MIN_COUNT
-
-
-
-
 def run_QoRTs_count(in_bam, in_gtf, out_dir):
     """
     Run QoRTS on aligned .bam files. Functions:
         - Perform QC checks
         - Generate count files
+
+    Require a separate directory for each .bam file acession number.
 
     :param in_bam
         Input .bam file, one per sample.
@@ -27,11 +22,13 @@ def run_QoRTs_count(in_bam, in_gtf, out_dir):
         Write count.txt file in the output directory.
     """
 
-    args = ["java", "-jar", QORTS_EXECUTABLE,
+    # TODO: add QoRTs.jar to environment path
+    args = ["java", "-jar", "/usr/bin/QoRTs.jar",
             "QC", "--stranded",
             in_bam, in_gtf,
             out_dir]
 
+    print(" ".join(args))
     subprocess.call(args)
     return
 
@@ -51,9 +48,10 @@ def run_QoRTs_merge(in_dir, in_decoder, out_dir):
         Merge count files given by the decoder and place in the output
         directory.
     """
-    args = ["java", "-jar", QORTS_EXECUTABLE,
+    args = ["java", "-jar", "/usr/bin/QoRTs.jar",
             "mergeAllCounts", in_dir, in_decoder, out_dir]
 
+    print(" ".join(args))
     subprocess.call(args)
     return
 
@@ -67,13 +65,18 @@ def run_QoRTs_size_factors(in_dir, in_decoder, out_file):
     :param out_file
         Size factor file to be generated
     """
-    args = ["Rscript", "qorts.R", in_dir, in_decoder, out_file]
 
+    # TODO: place qorts.R in environment path
+    args = ["Rscript", "/n/users/martins/Dev/enCount/enCount/externals/qorts.R",
+            in_dir, in_decoder, out_file]
+
+    print(" ".join(args))
     subprocess.call(args)
     return
 
 
-def run_QoRTs_novel_splices(in_dir, in_gtf, in_size_factors, out_dir,):
+def run_QoRTs_novel_splices(in_dir, in_gtf, in_size_factors, out_dir,
+                            min_count=6):
     """
     Identify novel splice junctions based on minimal read coverage.
 
@@ -85,16 +88,18 @@ def run_QoRTs_novel_splices(in_dir, in_gtf, in_size_factors, out_dir,):
         Initial annotation file.
     :param out_dir
         Output directory.
+    :param min_count
+        Filtering parameter for determining new junctions, suggested=6.
 
     :result
         Produce .gff file with novel splice junctions and
         updated count files in the output directory.
     """
 
-
-    args = ["java", "-jar", QORTS_EXECUTABLE, "mergeNovelSplices",
-                "--minCount", QORTS_MIN_COUNT, "--stranded",
+    args = ["java", "-jar", "/usr/bin/QoRTs.jar", "mergeNovelSplices",
+                "--minCount", str(min_count), "--stranded",
                 in_dir, in_size_factors, in_gtf, out_dir,]
 
+    print(" ".join(args))
     subprocess.call(args)
     return
