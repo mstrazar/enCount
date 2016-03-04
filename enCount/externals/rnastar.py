@@ -42,7 +42,8 @@ def run_star_generate_genome(in_gtf, in_genome_fasta_dir, out_genome_dir,
     return
 
 
-def run_star(in_fastq, in_genome_dir, out_dir, num_threads=4, ):
+def run_star(in_fastq, in_genome_dir, out_dir, num_threads=4,
+             clip3pAdapterSeq="-"):
     """
         Run STAR aligner on the in_fastq file.
 
@@ -57,6 +58,11 @@ def run_star(in_fastq, in_genome_dir, out_dir, num_threads=4, ):
         :param out_dir
             Prefix for the output directory.
 
+        :param clip3pAdapterSeq
+            string(s): adapter sequences to clip from 3p of each mate.
+            If one value is given, it will be assumed the same for both mates.
+            Default: -
+
         :result
             Generate a .bam file sorted by coordinate in out_dir.
             Assume 3' adaptor clipping.
@@ -69,7 +75,7 @@ def run_star(in_fastq, in_genome_dir, out_dir, num_threads=4, ):
             "--genomeDir",         in_genome_dir,
             "--runThreadN",        str(num_threads),
             "--outFileNamePrefix", out_dir,
-            "--clip3pAdapterSeq",
+            "--clip3pAdapterSeq",   clip3pAdapterSeq,
             "--outSAMtype", "BAM", "SortedByCoordinate",]
 
     if in_fastq.endswith(".gz"):
