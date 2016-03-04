@@ -11,6 +11,7 @@ import os
 # from ._version import __version__
 from . import encode
 from . import externals
+from . import workers
 
 # CONFIG
 # storage folder location

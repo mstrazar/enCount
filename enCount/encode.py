@@ -12,9 +12,33 @@ import json
 HEADERS = {'accept': 'application/json'}
 
 
-def get_list(assay_titles=('RNA-seq', 'shRNA/RNA-seq'),
-             organisms=('Homo sapiens', ),
-             biosamples=('K562', 'HepG2')):
+def parse_metadata_records(metadata_records):
+    """Group metadata records by Experiment accession"""
+    header = metadata_records[0]
+    exps = {}
+    for rec in metadata_records[1:]:
+        cur = dict(zip(header, rec))
+        exp_acc = cur['Experiment accession']
+        exps.setdefault(exp_acc, []).append(cur)
+
+    print('There are {0:d} experiments.'.format(len(exps)))
+    return exps
+
+
+def compare_experiments_sets(es1, es2):
+    # check if new experiments
+    if set(es1.keys()) != set(es2.keys()):
+        return True
+    for (k, v1) in es1.items():
+        v2 = es2[k]
+        if v1 != v2:
+            return True
+    return False
+
+
+def get_online_list(assay_titles=('RNA-seq', 'shRNA/RNA-seq'),
+                    organisms=('Homo sapiens', ),
+                    biosamples=('K562', 'HepG2')):
 
     # get json with link to batch download file
     params = {
@@ -51,21 +75,5 @@ def get_list(assay_titles=('RNA-seq', 'shRNA/RNA-seq'),
     print(response.url)
     reader = csv.reader(response.text.splitlines(), delimiter='\t')
     metadata_records = [row for row in reader]
-    header = metadata_records[0]
-    exps = {}
-    for rec in metadata_records[1:]:
-        cur = dict(zip(header, rec))
-        exp_acc = cur['Experiment accession']
-        exps.setdefault(exp_acc, []).append(cur)
 
-    print('There are {0:d} experiments.'.format(len(exps)))
-    return exps, metadata_records
-
-
-def test():
-    if os.path.isfile('tmp.json.gz'):
-        resp = json.loads(gzip.open('tmp.json.gz', 'rt').read())
-    else:
-        resp = _get()
-        gzip.open('tmp.json', 'wt').write(json.dumps(resp))
-    return parse_json(resp), resp
+    return parse_metadata_records(metadata_records)
