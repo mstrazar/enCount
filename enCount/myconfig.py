@@ -1,3 +1,4 @@
-data_root = '/Users/tomazc/workspace/tmp_data/enCount/storage/data'
-genomes_root = '/Users/tomazc/workspace/tmp_data/enCount/storage/genomes'
-results_root = '/Users/tomazc/workspace/tmp_data/enCount/storage/results'
+data_root = '/tmp/enCount/data'
+genomes_root = '/tmp/enCount/genomes'
+results_root = '/tmp/enCount/results'
+tmp_root = '/tmp/enCount/tmp'
