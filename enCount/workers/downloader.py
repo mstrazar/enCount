@@ -3,6 +3,8 @@ import requests
 import hashlib
 import tempfile
 
+import enCount
+
 from pymongo import MongoClient
 
 
@@ -23,17 +25,21 @@ def fastq_download(url, target_folder, target_fname, expected_size=None,
     else:
         print('expected md5: {:s}'.format(expected_md5))
 
+    # determine full path to where store downloaded file
+    file_name = os.path.join(target_folder, target_fname)
+    local_target_folder = os.path.join(enCount.data_root, target_folder)
+
     # download
     file_md5 = hashlib.md5()
     file_size = 0
-    filename = os.path.join(target_folder, target_fname)
+    local_filename = os.path.join(local_target_folder, target_fname)
     _, temp_filename = tempfile.mkstemp(
-        prefix='.{:s}'.format(target_fname), suffix='.download',
-        dir=target_folder
+        prefix='{:s}'.format(target_fname), suffix='.download',
+        dir=enCount.tmp_root
     )
     print('temporary file: {:s}'.format(temp_filename))
     r = requests.get(url, stream=True, timeout=3600)
-    with open(temp_filename, 'wb') as fd:
+    with open(local_filename, 'wb') as fd:
         for chunk in r.iter_content(chunk_size):
             # write to file
             fd.write(chunk)
@@ -56,16 +62,15 @@ def fastq_download(url, target_folder, target_fname, expected_size=None,
         return
 
     # rename file to proper name
-    print('saving to file: {:s}'.format(filename))
+    print('saving to file: {:s}'.format(local_filename))
     try:
-        os.rename(temp_filename, filename)
+        os.rename(temp_filename, local_filename)
     except:
         os.remove(temp_filename)
 
     # update database
     rec = {
-        'file_folder': target_folder,
-        'file_name': target_fname,
+        'file_name': file_name,
         'download_url': url,
         'md5': expected_md5,
         'expected_size': expected_size,

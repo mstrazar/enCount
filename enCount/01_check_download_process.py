@@ -14,6 +14,7 @@ from pymongo import MongoClient
 
 # connection for rq queueing system
 my_redis_conn = Redis()
+# my_redis_conn.flushall() # call this to empty the redis database
 q_dl = Queue('download', connection=Redis(), default_timeout=-1)
 
 # mongoDB for storing results of processing
@@ -32,7 +33,15 @@ col_mappings = db_encode['mappings']  # info on mappings
 # col_fastqs.remove({})
 # col_experiments.remove({})
 # col_mappings.remove({})
-print(list(col_fastqs.find()))
+print('Record on fastq files in DB: {:d}'.format(
+    col_fastqs.find().count())
+)
+print('Record on experiments in DB: {:d}'.format(
+    col_experiments.find().count())
+)
+print('Record on mappings in DB: {:d}'.format(
+    col_mappings.find().count())
+)
 
 # make sure program gets interrupted in a controlled way
 stop_it = False
@@ -114,24 +123,33 @@ while not stop_it:
                            {'file_name': 1}).limit(1).count() > 0:
             finished_downloads.add(file_name)
     for file_name in finished_downloads:
-        submitted_downloads.pop(file_name)
+        job = submitted_downloads.pop(file_name)
+        job.cleanup()
+        q_dl.remove(job)
         print('Download completed for: {:s}'.format(file_name))
     for file_name in to_remove_because_failed:
-        submitted_downloads.pop(file_name)
+        job = submitted_downloads.pop(file_name)
+        job.cleanup()
+        q_dl.remove(job)
 
     for e_acc, e_files in latest_experiments.items():
         for f_acc, f_url, f_size, f_md5 in _get_fastq_files(e_files):
             k = (f_acc, f_url, f_size, f_md5)
 
-            target_folder = os.path.join(enCount.data_root, e_acc)
-            if not os.path.isdir(target_folder):
+            target_folder = e_acc
+            local_target_folder = os.path.join(enCount.data_root,
+                                               target_folder)
+            # should be relative to enCount.data_root
+            if not os.path.isdir(local_target_folder):
                 try:
-                    os.makedirs(target_folder)
+                    os.makedirs(local_target_folder)
                 except:
                     print('Error, could not create download folder: '
-                          '{:s}'.format(target_folder))
+                          '{:s}'.format(local_target_folder))
                     continue
-            file_name = '{:s}_{:s}_{:d}.fastq.gz'.format(f_acc, f_md5, f_size)
+            target_fname = '{:s}_{:s}_{:d}.fastq.gz'.format(f_acc, f_md5,
+                                                            f_size)
+            file_name = os.path.join(target_folder, target_fname)
 
             if file_name in submitted_downloads:
                 continue
@@ -144,8 +162,8 @@ while not stop_it:
                       '{:s}'.format(e_acc, f_acc, f_url))
                 job = q_dl.enqueue_call(
                     enCount.workers.downloader.fastq_download,
-                    args=(f_url, target_folder, file_name),
-                    kwargs={'expected_size': f_size, 'expected_md5':f_md5},
+                    args=(f_url, target_folder, target_fname),
+                    kwargs={'expected_size': f_size, 'expected_md5': f_md5},
                     result_ttl=-1, ttl=-1, timeout=-1,
                 )
                 job.meta['file_name'] = file_name
@@ -172,6 +190,6 @@ while not stop_it:
     print('finished: {:d}'.format(cn_finished))
     print('failed: {:d}'.format(cn_failed))
     print('')
-#    time.sleep(10)
+    time.sleep(10)
 
 print('Stopped.')
