@@ -43,6 +43,9 @@ def _get_fastq_files(files_recs):
     return rets
 
 
+# remove failed jobs
+enCount.queues.failed.empty()
+
 # main scan loop
 print('Entering main loop.')
 submitted_downloads = dict((j.meta['file_name'], j) for j in
