@@ -14,6 +14,8 @@ _redis_conn = redis.Redis(host=config.REDIS_HOSTNAME,
 
 downloads = rq.Queue('download', connection=_redis_conn, default_timeout=-1)
 mappings = rq.Queue('mappings', connection=_redis_conn, default_timeout=-1)
+failed = rq.get_failed_queue(connection=_redis_conn)
 
 print(' jobs in downloads queue: {:d}'.format(downloads.count))
 print(' jobs in mappings queue: {:d}'.format(mappings.count))
+print(' jobs in failed queue: {:d}'.format(failed.count))
