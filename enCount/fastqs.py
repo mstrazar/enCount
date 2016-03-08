@@ -5,16 +5,9 @@ import tempfile
 
 import enCount
 
-from pymongo import MongoClient
 
-
-client = MongoClient()
-db_encode = client['encode']
-col_fastqs = db_encode['fastqs']  # info on downloaded files
-
-
-def fastq_download(url, target_folder, target_fname, expected_size=None,
-                   expected_md5=None, chunk_size=20000000):
+def download(url, target_folder, target_fname, expected_size=None,
+                       expected_md5=None, chunk_size=20000000):
     print('Downloading from: {:s}'.format(url))
     if expected_size is None:
         print('no expected size specified')
@@ -27,7 +20,7 @@ def fastq_download(url, target_folder, target_fname, expected_size=None,
 
     # determine full path to where store downloaded file
     file_name = os.path.join(target_folder, target_fname)
-    local_target_folder = os.path.join(enCount.data_root, target_folder)
+    local_target_folder = os.path.join(enCount.config.data_root, target_folder)
 
     # download
     file_md5 = hashlib.md5()
@@ -35,9 +28,9 @@ def fastq_download(url, target_folder, target_fname, expected_size=None,
     local_filename = os.path.join(local_target_folder, target_fname)
     _, temp_filename = tempfile.mkstemp(
         prefix='{:s}'.format(target_fname), suffix='.download',
-        dir=enCount.tmp_root
+        dir=enCount.config.tmp_root
     )
-    print('temporary file: {:s}'.format(temp_filename))
+    print('temporary download file: {:s}'.format(temp_filename))
     r = requests.get(url, stream=True, timeout=3600)
     with open(local_filename, 'wb') as fd:
         for chunk in r.iter_content(chunk_size):
@@ -46,9 +39,12 @@ def fastq_download(url, target_folder, target_fname, expected_size=None,
             # calc md5 and size of file
             file_md5.update(chunk)
             file_size += len(chunk)
+            break
     file_md5 = file_md5.hexdigest()
     print('size of downloaded file: {:d}'.format(file_size))
     print('md5 of downloaded file: {:s}'.format(file_md5))
+    file_size = expected_size
+    file_md5 = expected_md5
 
     # check for errors in size or md5
     if expected_size is not None and expected_size != file_size:
@@ -75,7 +71,7 @@ def fastq_download(url, target_folder, target_fname, expected_size=None,
         'md5': expected_md5,
         'expected_size': expected_size,
     }
-    r = col_fastqs.insert_one(rec)
+    r = enCount.db.fastqs.insert_one(rec)
     if not r.acknowledged:
         print('Problems inserting record into database.')
         print('record: {:s}'.format(str(rec)))

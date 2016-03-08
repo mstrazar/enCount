@@ -5,44 +5,6 @@ import datetime
 
 import enCount
 
-from redis import Redis
-from rq import Queue
-
-import pymongo
-from pymongo import MongoClient
-
-
-# connection for rq queueing system
-my_redis_conn = Redis()
-# my_redis_conn.flushall() # call this to empty the redis database
-q_dl = Queue('download', connection=Redis(), default_timeout=-1)
-
-# mongoDB for storing results of processing
-client = MongoClient()
-db_encode = client['encode']
-
-col_fastqs = db_encode['fastqs']  # info on downloaded files
-col_fastqs.create_index([('file_name', pymongo.ASCENDING)], unique=True)
-
-col_experiments = db_encode['experiments']  # info on new metadata versions
-col_experiments.create_index([('time_stamp', pymongo.DESCENDING)], unique=True)
-
-col_mappings = db_encode['mappings']  # info on mappings
-
-# reset collections
-# col_fastqs.remove({})
-# col_experiments.remove({})
-# col_mappings.remove({})
-print('Record on fastq files in DB: {:d}'.format(
-    col_fastqs.find().count())
-)
-print('Record on experiments in DB: {:d}'.format(
-    col_experiments.find().count())
-)
-print('Record on mappings in DB: {:d}'.format(
-    col_mappings.find().count())
-)
-
 # make sure program gets interrupted in a controlled way
 stop_it = False
 
@@ -55,7 +17,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 
 # find latest set of experiments (and associated metadata)
-experiments_sets = col_experiments.find().sort('time_stamp', -1)
+experiments_sets = enCount.db.experiments.find().sort('time_stamp', -1)
 if experiments_sets.count():
     latest_experiments = experiments_sets[0]['experiments']
     latest_time_stamp = experiments_sets[0]['time_stamp']
@@ -82,8 +44,9 @@ def _get_fastq_files(files_recs):
 
 
 # main scan loop
-print('Entering scan loop.')
-submitted_downloads = dict((j.meta['file_name'], j) for j in q_dl.jobs)
+print('Entering main loop.')
+submitted_downloads = dict((j.meta['file_name'], j) for j in
+                           enCount.queues.downloads.jobs)
 failed_downloads = set()
 
 while not stop_it:
@@ -99,7 +62,7 @@ while not stop_it:
         print('Will download all new/changed fastq files needed...')
         print('')
         latest_experiments = online_experiments_list
-        col_experiments.insert_one({
+        enCount.db.experiments.insert_one({
             'time_stamp': datetime.datetime.utcnow(),
             'experiments': latest_experiments,
         })
@@ -119,25 +82,25 @@ while not stop_it:
             failed_downloads.add(file_name)
             to_remove_because_failed.add(file_name)
 
-        if col_fastqs.find({'file_name': file_name},
-                           {'file_name': 1}).limit(1).count() > 0:
+        if enCount.db.fastqs.find({'file_name': file_name},
+                                  {'file_name': 1}).limit(1).count() > 0:
             finished_downloads.add(file_name)
     for file_name in finished_downloads:
         job = submitted_downloads.pop(file_name)
         job.cleanup()
-        q_dl.remove(job)
+        enCount.queues.downloads.remove(job)
         print('Download completed for: {:s}'.format(file_name))
     for file_name in to_remove_because_failed:
         job = submitted_downloads.pop(file_name)
         job.cleanup()
-        q_dl.remove(job)
+        enCount.queues.downloads.remove(job)
 
     for e_acc, e_files in latest_experiments.items():
         for f_acc, f_url, f_size, f_md5 in _get_fastq_files(e_files):
             k = (f_acc, f_url, f_size, f_md5)
 
             target_folder = e_acc
-            local_target_folder = os.path.join(enCount.data_root,
+            local_target_folder = os.path.join(enCount.config.data_root,
                                                target_folder)
             # should be relative to enCount.data_root
             if not os.path.isdir(local_target_folder):
@@ -156,12 +119,12 @@ while not stop_it:
             if file_name in failed_downloads:
                 # do not attempt to download file which failed previously
                 continue
-            if col_fastqs.find({'file_name': file_name},
-                               {'file_name': 1}).limit(1).count() == 0:
+            if enCount.db.fastqs.find({'file_name': file_name},
+                                      {'file_name': 1}).limit(1).count() == 0:
                 print('downloading experiment {:s} file {:s} from '
                       '{:s}'.format(e_acc, f_acc, f_url))
-                job = q_dl.enqueue_call(
-                    enCount.workers.downloader.fastq_download,
+                job = enCount.queues.downloads.enqueue_call(
+                    enCount.fastqs.download,
                     args=(f_url, target_folder, target_fname),
                     kwargs={'expected_size': f_size, 'expected_md5': f_md5},
                     result_ttl=-1, ttl=-1, timeout=-1,
@@ -177,7 +140,7 @@ while not stop_it:
     cn_started = 0
     cn_finished = 0
     cn_failed = 0
-    for j in q_dl.get_jobs():
+    for j in enCount.queues.downloads.get_jobs():
         cn_size += 1
         cn_queued += j.is_queued
         cn_started += j.is_started
