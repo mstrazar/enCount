@@ -15,3 +15,5 @@ from . import encode
 from . import externals
 
 from . import fastqs
+from . import experiments
+from . import mappings

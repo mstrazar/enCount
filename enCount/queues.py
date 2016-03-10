@@ -16,6 +16,23 @@ downloads = rq.Queue('download', connection=_redis_conn, default_timeout=-1)
 mappings = rq.Queue('mappings', connection=_redis_conn, default_timeout=-1)
 failed = rq.get_failed_queue(connection=_redis_conn)
 
-print(' jobs in downloads queue: {:d}'.format(downloads.count))
-print(' jobs in mappings queue: {:d}'.format(mappings.count))
-print(' jobs in failed queue: {:d}'.format(failed.count))
+
+def queue_stats(q):
+    cn_size = 0
+    cn_queued = 0
+    cn_started = 0
+    cn_finished = 0
+    cn_failed = 0
+    for j in q.jobs:
+        cn_size += 1
+        cn_queued += j.is_queued
+        cn_started += j.is_started
+        cn_finished += j.is_finished
+        cn_failed += j.is_failed
+    return 'size {:d}, queued {:d}, started {:d}, finished {:d}, ' \
+           'failed {:d}'.format(cn_size, cn_queued, cn_started, cn_finished,
+                                cn_failed)
+
+print(' downloads queue: {:s}'.format(queue_stats(downloads)))
+print(' mappings queue : {:s}'.format(queue_stats(mappings)))
+print(' failed queue   : {:s}'.format(queue_stats(failed)))

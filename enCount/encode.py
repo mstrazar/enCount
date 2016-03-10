@@ -3,11 +3,8 @@ Interface to query and download from ENCODE.
 
 """
 
-import os
-import gzip
 import csv
 import requests
-import json
 
 HEADERS = {'accept': 'application/json'}
 
@@ -23,17 +20,6 @@ def parse_metadata_records(metadata_records):
 
     print('There are {0:d} experiments.'.format(len(exps)))
     return exps
-
-
-def compare_experiments_sets(es1, es2):
-    # check if new experiments
-    if set(es1.keys()) != set(es2.keys()):
-        return True
-    for (k, v1) in es1.items():
-        v2 = es2[k]
-        if v1 != v2:
-            return True
-    return False
 
 
 def get_online_list(assay_titles=('RNA-seq', 'shRNA/RNA-seq'),
