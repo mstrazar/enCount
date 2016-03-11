@@ -3,6 +3,7 @@ import requests
 import hashlib
 import tempfile
 import datetime
+from bson.objectid import ObjectId
 
 import enCount
 
@@ -13,16 +14,19 @@ submitted_downloads = dict(
 
 
 def _update_dbrec_status(dbrec_id, new_status):
+    print(dbrec_id)
     r = enCount.db.fastqs.update_one(
-        {'_id': dbrec_id}, {'status': new_status}
+        {'_id': ObjectId(dbrec_id)}, {"$set": {'status': new_status}}
     )
-    if not r.acknowledged:
-        print(' problems updating collection fastqs record id: {'
-              ':s}'.format(dbrec_id))
+    if r.matched_count != 1 or r.modified_count != 1 or not r.acknowledged:
+        print(' problems updating collection fastqs record id: {:s}, '
+              'match count {:d}, modified count {:d}'.format(
+              dbrec_id, r.matched_count, r.modified_count)
+        )
 
 
 def download(url, file_path, expected_md5, expected_size, dbrec_id,
-             chunk_size=20000000):
+             chunk_size=500000):
     print('Downloading from: {:s}'.format(url))
     print(' expected md5: {:s}'.format(expected_md5))
     print(' expected size: {:d}'.format(expected_size))
@@ -55,22 +59,22 @@ def download(url, file_path, expected_md5, expected_size, dbrec_id,
     file_md5 = expected_md5
 
     # check for errors in md5 or size
-    if expected_md5 is not None and expected_md5 != file_md5:
+    if expected_md5 != file_md5:
         print('ERROR, md5 of downloaded file not as expected.')
         _update_dbrec_status(dbrec_id, 'error - md5 mismatch')
         os.remove(temp_filename)
         return
 
-    if expected_size is not None and expected_size != file_size:
+    if expected_size != file_size:
         print('ERROR, size of downloaded file not as expected.')
         _update_dbrec_status(dbrec_id, 'error - file size mismatch')
         os.remove(temp_filename)
         return
 
     # rename file to proper name
-    print('saving to file: {:s}'.format(local_filename))
+    print('saving to file: {:s}'.format(abs_file_path))
     try:
-        os.rename(temp_filename, local_filename)
+        os.rename(temp_filename, abs_file_path)
     except:
         os.remove(temp_filename)
         return
@@ -94,7 +98,7 @@ def get_file_path(e_acc, f_acc, f_url, f_size, f_md5):
         # fetch record from DB
         hit = hits[0]
         if hit['status'] == 'ready':
-            return os.path.join(enCount.config.data_root, hit['file_path'])
+            return hit['file_path']
         else:
             # not ready
             return
@@ -110,6 +114,7 @@ def get_file_path(e_acc, f_acc, f_url, f_size, f_md5):
             'md5': f_md5, 'file_path': file_path, 'status': 'to download',
             'time_stamp': time_stamp
         }
+        print('adding new record to fastqs collection: {:s}'.format(new_rec))
         enCount.db.fastqs.insert_one(new_rec)
         # not ready
         return
@@ -121,11 +126,14 @@ def process():
     # query DB to get all records that have status 'to download'
     for e in enCount.db.fastqs.find({'status': 'to download'}):
         file_path = e['file_path']
+        dbrec_id = str(e['_id'])
         # queue new files to download
         if file_path not in submitted_downloads:
+            f_url = e['url']
             f_md5 = e['md5']
             f_size = e['size']
             e_acc = e['e_acc']
+            print('queuing download from {:s}'.format(f_url))
 
             # make sure folder exists before download starts
             rel_folder = "{:s}".format(e_acc)
@@ -136,17 +144,18 @@ def process():
                 except:
                     print('Error, could not create download folder: '
                           '{:s}'.format(abs_folder))
-                    print(' file {:s} will not be downloaded.'.format(fname))
+                    print(' file {:s} will not be '
+                          'downloaded.'.format(file_path))
                     # error, will not be ready
                     return
 
-            job = enCount.queues.enqueue_call(
+            job = enCount.queues.downloads.enqueue_call(
                 enCount.fastqs.download,
                 args=(f_url, file_path, f_md5, f_size, dbrec_id),
                 result_ttl=-1, ttl=-1, timeout=-1,
             )
             job.meta['file_path'] = file_path
-            job.save
+            job.save()
             submitted_downloads[file_path] = job
 
     # clean queue for finished downloads

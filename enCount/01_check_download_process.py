@@ -15,6 +15,9 @@ def signal_handler(signal, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 
+# call this to empty the redis database
+# enCount.queues._redis_conn.flushall()
+
 # remove failed jobs
 enCount.queues.failed.empty()
 
@@ -44,7 +47,7 @@ while not stop_it:
     enCount.fastqs.process()
     enCount.experiments.process()
     enCount.mappings.process()
-
-    time.sleep(10)
+    enCount.queues.print_stats()
+#    time.sleep(10)
 
 print('Stopped.')

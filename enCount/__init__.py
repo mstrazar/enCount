@@ -14,6 +14,7 @@ from . import queues
 from . import encode
 from . import externals
 
+from . import gtfs
 from . import fastqs
 from . import experiments
 from . import mappings

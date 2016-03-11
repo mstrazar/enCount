@@ -65,3 +65,4 @@ target/
 .idea
 
 enCount/_version.py
+enCount/myconfig.py

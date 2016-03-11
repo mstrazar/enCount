@@ -1,6 +1,8 @@
 # folder configuration
-data_root = '/tmp/enCount/data'
-genomes_root = '/tmp/enCount/genomes'
+#data_root = '/tmp/enCount/data'
+data_root = '/Users/tomazc/workspace/tmp_data/enCount/data'
+#genomes_root = '/tmp/enCount/genomes'
+genomes_root = '/Users/tomazc/workspace/tmp_data/enCount/genomes'
 results_root = '/tmp/enCount/results'
 tmp_root = '/tmp/enCount/tmp'
 
