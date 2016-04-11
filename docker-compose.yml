@@ -1,0 +1,40 @@
+version: '2'
+services:
+  redis:
+    image: redis
+
+  rqdashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile-rqdashboard
+    #command: rq-dashboard -b redis
+    ports:
+     - "9181:9181"
+    depends_on:
+     - redis
+
+  mongo:
+    image: mongo
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile-worker
+    volumes:
+      - .:/home/enuser/enCount
+    working_dir: /home/enuser/enCount
+    depends_on:
+      - redis
+      - mongo
+      - web
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile-main
+    volumes:
+      - .:/home/enuser/enCount
+    working_dir: /home/enuser/enCount
+    depends_on:
+      - redis
+      - mongo

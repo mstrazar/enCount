@@ -10,7 +10,7 @@ results_root = os.path.join(_config_root, 'results')
 tmp_root = os.path.join(_config_root, 'tmp')
 
 # Redis store
-REDIS_HOSTNAME = 'localhost'
+REDIS_HOSTNAME = 'redis://localhost'
 REDIS_PORT = 6379
 REDIS_DB = 0
 

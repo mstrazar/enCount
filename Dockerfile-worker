@@ -1,18 +1,21 @@
-FROM ubuntu:14.04.3
+FROM ubuntu:14.04.4
 MAINTAINER Tomaz Curk <tomazc@gmail.com>
 
 # thanks to https://github.com/bschiffthaler/ngs/blob/master/base/Dockerfile
 # and https://github.com/AveraSD/ngs-docker-star/blob/master/Dockerfile
 
-RUN useradd -m -d /home/icuser icuser
+ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
 
-# update system
-RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y \
+RUN useradd -m -d /home/enuser enuser
+
+# update system and install prerequisites
+# avoid apt-get upgrade -y
+RUN apt-get update && apt-get install -y \
     wget \
     g++ \
     zlib1g-dev \
-    libzmq-dev \
+#    libzmq-dev \
     make \
     python3 \
     python3-pip \
@@ -23,6 +26,7 @@ RUN apt-get update && apt-get upgrade -y && \
 RUN apt-get autoclean -y && \
     apt-get autoremove -y
 
+
 #################
 ### RNA-star
 
@@ -32,25 +36,23 @@ RUN wget https://github.com/alexdobin/STAR/archive/STAR_2.4.2a.tar.gz
 RUN tar -xvzf STAR_2.4.2a.tar.gz
 WORKDIR /tmp/STAR/STAR-STAR_2.4.2a/source
 RUN make STAR
-RUN mkdir -p /home/icuser/bin && cp STAR /home/icuser/bin
+RUN mkdir -p /home/enuser/bin && cp STAR /home/enuser/bin
 WORKDIR /tmp
 RUN rm -rfv STAR
 
 
 #################
-#### iCount
-ADD . /home/icuser/iCount_src
+#### enCount
+ADD . /home/enuser/enCount
 
-RUN chown -R icuser.icuser /home/icuser
+RUN chown -R enuser.enuser /home/enuser
 
-USER icuser
-WORKDIR /home/icuser
-RUN virtualenv -p python3 /home/icuser/.icountenv
+USER enuser
+WORKDIR /home/enuser
+RUN virtualenv -p python3 /home/enuser/.encountenv
 
-WORKDIR /home/icuser/iCount_src
-RUN ../.icountenv/bin/pip install --upgrade -r requirements.txt
-RUN ../.icountenv/bin/python setup.py develop
+WORKDIR /home/enuser/enCount
+RUN ../.encountenv/bin/pip install --upgrade -r requirements.txt
+RUN ../.encountenv/bin/python setup.py develop
 
-EXPOSE 6543
-
-ENTRYPOINT ["/home/icuser/.icountenv/bin/pserve", "development.ini"]
+ENTRYPOINT ["/home/enuser/.encountenv/bin/rqworker", "--url", "redis://redis", "download"]

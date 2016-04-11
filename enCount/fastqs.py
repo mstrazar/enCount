@@ -114,7 +114,8 @@ def get_file_path(e_acc, f_acc, f_url, f_size, f_md5):
             'md5': f_md5, 'file_path': file_path, 'status': 'to download',
             'time_stamp': time_stamp
         }
-        print('adding new record to fastqs collection: {:s}'.format(new_rec))
+        print('adding new record to fastqs collection: {:s}'.format(
+            str(new_rec)))
         enCount.db.fastqs.insert_one(new_rec)
         # not ready
         return

@@ -1,0 +1,43 @@
+FROM ubuntu:14.04.4
+MAINTAINER Tomaz Curk <tomazc@gmail.com>
+
+ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
+
+RUN useradd -m -d /home/enuser enuser
+
+# update system and install prerequisites
+# avoid apt-get upgrade -y
+RUN apt-get update && apt-get install -y \
+    wget \
+    g++ \
+    zlib1g-dev \
+    libzmq-dev \
+    make \
+    python3 \
+    python3-pip \
+    python3-setuptools \
+    python-virtualenv \
+    python-pip
+
+RUN apt-get autoclean -y && \
+    apt-get autoremove -y
+
+
+#################
+#### enCount
+ADD . /home/enuser/enCount
+
+RUN chown -R enuser.enuser /home/enuser
+
+USER enuser
+WORKDIR /home/enuser
+RUN virtualenv -p python3 /home/enuser/.encountenv
+
+WORKDIR /home/enuser/enCount
+RUN ../.encountenv/bin/pip install --upgrade -r requirements.txt
+RUN ../.encountenv/bin/python setup.py develop
+
+# EXPOSE 6543
+
+ENTRYPOINT ["/home/enuser/.encountenv/bin/python3", "-m", "enCount.process_loop"]
