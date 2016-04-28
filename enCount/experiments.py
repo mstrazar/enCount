@@ -87,7 +87,7 @@ def _get_fastq_files_for_samples(files_recs):
 
     # sort paired fastqs
     retd = {}
-    for (s, t_rep), tmpd in pairings.items():
+    for (b_rep, t_rep), tmpd in pairings.items():
         recs = []
         for k1, pairing in tmpd.items():
             pairing.sort()
