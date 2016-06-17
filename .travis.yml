@@ -35,7 +35,8 @@ script:
     - coverage run setup.py test
 
 after_success:
-    - codecov
+    - bash <(curl -s https://codecov.io/bash) -t d25f955a-b8e9-4831-aaf7-82758f695217
+#    - codecov
 
 notifications:
     email: false
