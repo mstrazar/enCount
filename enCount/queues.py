@@ -12,7 +12,7 @@ _redis_conn = redis.Redis(host=config.REDIS_HOSTNAME,
                                 port=config.REDIS_PORT, db=config.REDIS_DB)
 # _redis_conn.flushall() # call this to empty the redis database
 
-downloads = rq.Queue('download', connection=_redis_conn, default_timeout=-1)
+downloads = rq.Queue('downloads', connection=_redis_conn, default_timeout=-1)
 experiments = rq.Queue('experiments', connection=_redis_conn, default_timeout=-1)
 mappings = rq.Queue('mappings', connection=_redis_conn, default_timeout=-1)
 failed = rq.get_failed_queue(connection=_redis_conn)

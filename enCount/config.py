@@ -15,7 +15,7 @@ REDIS_PORT = 6379
 REDIS_DB = 0
 
 # MongoDB
-MONGO_HOSTNAME = 'localhost'
+MONGO_HOSTNAME = 'mongodb://localhost'
 MONGO_PORT = 27017
 
 # read from local config

@@ -11,11 +11,12 @@ RUN useradd -m -d /home/enuser enuser
 
 # update system and install prerequisites
 # avoid apt-get upgrade -y
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get upgrade -y
+RUN apt-get install -y \
     wget \
     g++ \
     zlib1g-dev \
-#    libzmq-dev \
+    libzmq-dev \
     make \
     python3 \
     python3-pip \
@@ -47,6 +48,9 @@ ADD . /home/enuser/enCount
 
 RUN chown -R enuser.enuser /home/enuser
 
+RUN mkdir /endata
+RUN chown enuser.enuser /endata
+
 USER enuser
 WORKDIR /home/enuser
 RUN virtualenv -p python3 /home/enuser/.encountenv
@@ -55,4 +59,4 @@ WORKDIR /home/enuser/enCount
 RUN ../.encountenv/bin/pip install --upgrade -r requirements.txt
 RUN ../.encountenv/bin/python setup.py develop
 
-ENTRYPOINT ["/home/enuser/.encountenv/bin/rqworker", "--url", "redis://redis", "download"]
+ENTRYPOINT ["/home/enuser/.encountenv/bin/rqworker", "--url", "redis://redis", "downloads"]

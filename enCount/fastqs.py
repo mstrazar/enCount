@@ -75,14 +75,15 @@ def download(url, file_path, expected_md5, expected_size, dbrec_id,
     print('saving to file: {:s}'.format(abs_file_path))
     try:
         os.rename(temp_filename, abs_file_path)
-    except:
+    except FileNotFoundError:
+        print('ERROR, file could not be saved to target folder')
         os.remove(temp_filename)
         return
 
     # update database
     _update_dbrec_status(dbrec_id, 'ready')
     print('done')
-
+    return url
 
 def get_file_path(e_acc, f_acc, f_url, f_size, f_md5):
     """Return path to file or None if file not available."""

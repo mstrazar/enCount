@@ -2,19 +2,26 @@ version: '2'
 services:
   redis:
     image: redis
+    ports:
+     - "6379:6379"
+
+  mongo:
+    image: mongo
+    ports:
+     - "27017:27017"
+    volumes:
+     - dbdata:/data
 
   rqdashboard:
     build:
       context: .
       dockerfile: Dockerfile-rqdashboard
-    #command: rq-dashboard -b redis
     ports:
      - "9181:9181"
     depends_on:
      - redis
-
-  mongo:
-    image: mongo
+    links:
+     - redis
 
   worker:
     build:
@@ -26,15 +33,29 @@ services:
     depends_on:
       - redis
       - mongo
-      - web
+      - main
+    links:
+     - redis
+     - mongo
+     - main
+    volumes:
+    - endata:/endata
 
-  web:
+  main:
     build:
       context: .
       dockerfile: Dockerfile-main
     volumes:
       - .:/home/enuser/enCount
+      - endata:/endata
     working_dir: /home/enuser/enCount
     depends_on:
       - redis
       - mongo
+    links:
+      - redis
+      - mongo
+
+volumes:
+  endata:
+  dbdata:
