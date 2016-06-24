@@ -3,11 +3,13 @@ import os
 
 # folder configuration
 _config_root = os.path.split(os.path.abspath(__file__))[0]
-
 data_root = os.path.join(_config_root, 'data')
+
 genomes_root = os.path.join(_config_root, 'genomes')
 results_root = os.path.join(_config_root, 'results')
 tmp_root = os.path.join(_config_root, 'tmp')
+
+data_debug_root = os.path.join(data_root, "debug")
 
 # Redis store
 REDIS_HOSTNAME = 'redis://localhost'
@@ -17,6 +19,10 @@ REDIS_DB = 0
 # MongoDB
 MONGO_HOSTNAME = 'mongodb://localhost'
 MONGO_PORT = 27017
+
+# QoRTS
+QORTS_JAR = os.path.join(_config_root, "externals", "libs", "QoRTs.jar")
+QORTS_R = os.path.join(_config_root, "externals", "libs", "QoRTs.R")
 
 # read from local config
 try:
