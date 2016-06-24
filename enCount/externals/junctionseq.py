@@ -2,7 +2,7 @@
 import subprocess
 from enCount.config import QORTS_JAR, QORTS_R
 
-def run_QoRTs_count(in_bam, in_gtf, out_dir):
+def run_QoRTs_count(in_bam, in_gtf, out_dir, test_run=False):
     """
     Run QoRTS on aligned .bam files. Functions:
         - Perform QC checks
@@ -23,6 +23,7 @@ def run_QoRTs_count(in_bam, in_gtf, out_dir):
 
     args = ["java", "-jar", QORTS_JAR,
             "QC", "--stranded",
+            "--testRun" if test_run else "",
             in_bam, in_gtf,
             out_dir]
 
@@ -30,7 +31,7 @@ def run_QoRTs_count(in_bam, in_gtf, out_dir):
     return subprocess.call(args)
 
 
-def run_QoRTs_merge(in_dir, in_decoder, out_dir):
+def run_QoRTs_merge(in_dir, in_decoder, out_dir, test_run=False):
     """
     Merge technical replicates from same biological sample.
 
@@ -47,7 +48,6 @@ def run_QoRTs_merge(in_dir, in_decoder, out_dir):
     """
     args = ["java", "-jar", QORTS_JAR,
             "mergeAllCounts", in_dir, in_decoder, out_dir]
-
     print(" ".join(args))
     return subprocess.call(args)
 
