@@ -1,44 +1,54 @@
-from enCount.externals.junctionseq import run_QoRTs_count, run_QoRTs_merge, \
-    run_QoRTs_size_factors, run_QoRTs_novel_splices
+from enCount.externals.junctionseq import *
+from enCount.config import data_root
 
 import unittest
-from glob import glob
 from os import makedirs
-from os.path import join, basename, splitext, exists
+from os.path import join, exists
 from shutil import rmtree
 from csv import DictReader
 
 
 class TestQoRTs(unittest.TestCase):
-    """ Test QoRTs pipeline """
+    """ Test QoRTs pipeline. Testing with provided datasets. """
 
-    data_root = "/Volumes/My Passport/data/encount/"
+    # Input
     data_debug = join(data_root, "externals")
-    data_bam = join(data_root, "bam")
+    in_dir_bam = join(data_root, "bam")
 
+    # TODO: ensure download of these files environment during Docker build
+    in_gtf     = join(data_debug,"QoRTsExampleData", "inst", "extdata",
+                  "anno.gtf.gz")
     in_decoder_uid = join(data_debug, "QoRTsPipelineWalkthrough", "outputData",
             "JctSeqData", "inst", "extdata", "annoFiles", "decoder.byUID.small.txt")
-    in_gtf = join(data_debug,"QoRTsExampleData", "inst", "extdata",
-                  "anno.gtf.gz")
-    in_dir_bam = data_bam
+    in_decoder_sample = join(data_debug, "QoRTsPipelineWalkthrough",
+                             "outputData", "JctSeqData", "inst", "extdata",
+                             "annoFiles", "decoder.bySample.small.txt")
 
+    # Output
     data_output = join(data_debug, "output")
     out_dir_raw_cts = join(data_output, "rawCts/")
     out_dir_cts = join(data_output, "cts/")
     out_size_factors = join(data_output, "results", "size_factors.txt")
     out_gtf_dir = join(data_output, "gtf/")
+    out_jscs_dir = join(data_output, "jscs/")
+
+    in_count_dir = join(data_output, "gtf/")
+    in_gff       = join(data_output, "gtf", "withNovel.forJunctionSeq.gff.gz")
+
 
     def setUp(self):
         """ Cleanup test directories """
         for out in [self.out_dir_raw_cts, self.out_dir_cts,
-                    self.out_gtf_dir]:
-            if exists(out): rmtree(out)
+                    self.out_gtf_dir, self.out_jscs_dir]:
+            if exists(out): rmtree(out, ignore_errors=True)
             makedirs(out)
 
         # Directories must end with /
+        assert self.in_count_dir.endswith("/")
         assert self.out_dir_raw_cts.endswith("/")
         assert self.out_dir_cts.endswith("/")
         assert self.out_gtf_dir.endswith("/")
+        assert self.out_jscs_dir.endswith("/")
 
 
     def test_QoRTs(self):
@@ -73,6 +83,15 @@ class TestQoRTs(unittest.TestCase):
                                in_size_factors=self.out_size_factors,
                                out_dir=self.out_gtf_dir)
         self.assertEqual(r, 0)
+
+
+        # Run JunctionSeq analysis
+        r = run_JunctionSeq_analysis(in_count_dir=self.in_count_dir,
+                                     in_gff=self.in_gff,
+                                     in_decoder=self.in_decoder_sample,
+                                     out_dir=self.out_jscs_dir)
+        self.assertEqual(r, 0)
+
 
 if __name__ == "__main__":
     unittest.main()
