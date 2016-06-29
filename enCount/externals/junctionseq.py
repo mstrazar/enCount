@@ -1,6 +1,6 @@
 # coding=utf-8
 import subprocess
-from enCount.config import QORTS_JAR, QORTS_R
+from enCount.config import QORTS_JAR, QORTS_R, JUNCTIONSEQ_R
 
 def run_QoRTs_count(in_bam, in_gtf, out_dir, test_run=False):
     """
@@ -61,7 +61,7 @@ def run_QoRTs_size_factors(in_dir, in_decoder, out_file):
     :param out_file
         Size factor file to be generated
     """
-    args = ["Rscript", QORTS_R,
+    args = ["/usr/local/bin/Rscript", QORTS_R,
             in_dir, in_decoder, out_file]
     print(" ".join(args))
     return subprocess.call(args)
@@ -93,3 +93,28 @@ def run_QoRTs_novel_splices(in_dir, in_gtf, in_size_factors, out_dir,
 
     print(" ".join(args))
     return subprocess.call(args)
+
+
+def run_JunctionSeq_analysis(in_decoder, in_gff, in_count_dir, out_dir):
+    """
+    Run the whole JunctionSeq analysis of differential exon *and* splice
+    junction usage.
+    :param in_decoder
+        Decoder file indicating experimental design.
+    :param in_gff.
+        .gff file (including novel junctions) as produced by QoRTs.
+    :param in_count_dir
+        Directory with count files with naming as in decoder.
+    :param out_dir
+        Output directory.
+    :result
+        Produce .tab files with differential usage analysiss results in the
+        output directory.
+    """
+    args = ["/usr/local/bin/Rscript", JUNCTIONSEQ_R, in_decoder, in_gff,
+            in_count_dir, out_dir]
+
+    print(" ".join(args))
+    return subprocess.call(args)
+
+

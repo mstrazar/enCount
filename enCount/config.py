@@ -20,9 +20,10 @@ REDIS_DB = 0
 MONGO_HOSTNAME = 'mongodb://localhost'
 MONGO_PORT = 27017
 
-# QoRTS
+# QoRTS and JunctionSeq scripts
 QORTS_JAR = os.path.join(_config_root, "externals", "libs", "QoRTs.jar")
 QORTS_R = os.path.join(_config_root, "externals", "libs", "QoRTs.R")
+JUNCTIONSEQ_R = os.path.join(_config_root, "externals", "libs", "JunctionSeq.R")
 
 # read from local config
 try:
