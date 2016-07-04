@@ -16,13 +16,14 @@ class TestQoRTs(unittest.TestCase):
     in_dir_bam = join(data_root, "bam")
 
     # TODO: ensure download of these files environment during Docker build
+    # TODO: include /Volumes/My Passport/data/encount/externals/QoRTsPipelineWalkthrough/outputData/JctSeqData/inst/extdata/tiny
     in_gtf     = join(data_debug,"QoRTsExampleData", "inst", "extdata",
                   "anno.gtf.gz")
     in_decoder_uid = join(data_debug, "QoRTsPipelineWalkthrough", "outputData",
-            "JctSeqData", "inst", "extdata", "annoFiles", "decoder.byUID.small.txt")
+            "JctSeqData", "inst", "extdata", "annoFiles", "decoder.byUID.txt")
     in_decoder_sample = join(data_debug, "QoRTsPipelineWalkthrough",
                              "outputData", "JctSeqData", "inst", "extdata",
-                             "annoFiles", "decoder.bySample.small.txt")
+                             "annoFiles", "decoder.bySample.txt")
 
     # Output
     data_output = join(data_debug, "output")
@@ -65,7 +66,7 @@ class TestQoRTs(unittest.TestCase):
             self.assertEqual(r, 0)
 
         # Merge counts for technical replicates """
-        r = run_QoRTs_merge(in_dir=self.out_dir_raw_cts,
+        r = run_QoRTs_merge_counts(in_dir=self.out_dir_raw_cts,
                         in_decoder=self.in_decoder_uid,
                         out_dir=self.out_dir_cts)
         self.assertEqual(r, 0)
@@ -86,7 +87,7 @@ class TestQoRTs(unittest.TestCase):
 
 
         # Run JunctionSeq analysis
-        r = run_JunctionSeq_analysis(in_count_dir=self.in_count_dir,
+        r = run_JunctionSeq_analysis(in_gtf_dir=self.in_count_dir,
                                      in_gff=self.in_gff,
                                      in_decoder=self.in_decoder_sample,
                                      out_dir=self.out_jscs_dir)
