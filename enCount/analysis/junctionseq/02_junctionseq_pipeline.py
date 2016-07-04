@@ -38,12 +38,11 @@ experiments = sorted(list(set([row[jseq.EXPERIMENT_ACCESSION] for row in
 pool = mp.Pool(n_workers)
 
 # 1. Generate decoders
-# r = jseq.generate_decoders(in_metafile, in_dir_control, out_jscs_dir)
-# assert r == 0
+r = jseq.generate_decoders(in_metafile, in_dir_control, out_jscs_dir)
+assert r == 0
 
 # 2.
 # TODO: call counting in separate processes per sample
-
 
 # 3. Call merge counts in parallel per experiment
 # Use multiprocessing ; make sure arguments are in correct order
