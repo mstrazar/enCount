@@ -1,6 +1,6 @@
 # coding=utf-8
 import subprocess
-from enCount.config import QORTS_JAR, QORTS_R, JUNCTIONSEQ_R
+import encount.config
 
 def run_QoRTs_count(in_bam, in_gtf, out_dir, test_run=False):
     """
@@ -21,7 +21,7 @@ def run_QoRTs_count(in_bam, in_gtf, out_dir, test_run=False):
         Write count.txt file in the output directory.
     """
 
-    args = ["java", "-jar", QORTS_JAR,
+    args = ["java", "-jar", encount.config.QORTS_JAR,
             "QC", "--stranded",
             "--testRun" if test_run else "",
             in_bam, in_gtf,
@@ -46,7 +46,7 @@ def run_QoRTs_merge(in_dir, in_decoder, out_dir, test_run=False):
         Merge count files given by the decoder and place in the output
         directory.
     """
-    args = ["java", "-jar", QORTS_JAR,
+    args = ["java", "-jar", encount.config.QORTS_JAR,
             "mergeAllCounts", in_dir, in_decoder, out_dir]
     print(" ".join(args))
     return subprocess.call(args)
@@ -61,7 +61,7 @@ def run_QoRTs_size_factors(in_dir, in_decoder, out_file):
     :param out_file
         Size factor file to be generated
     """
-    args = ["/usr/local/bin/Rscript", QORTS_R,
+    args = ["/usr/local/bin/Rscript", encount.config.QORTS_R,
             in_dir, in_decoder, out_file]
     print(" ".join(args))
     return subprocess.call(args)
@@ -87,7 +87,7 @@ def run_QoRTs_novel_splices(in_dir, in_gtf, in_size_factors, out_dir,
         Produce .gff file with novel splice junctions and
         updated count files in the output directory.
     """
-    args = ["java", "-jar", QORTS_JAR, "mergeNovelSplices",
+    args = ["java", "-jar", encount.config.QORTS_JAR, "mergeNovelSplices",
                 "--minCount", str(min_count), "--stranded",
                 in_dir, in_size_factors, in_gtf, out_dir,]
 
@@ -111,8 +111,8 @@ def run_JunctionSeq_analysis(in_decoder, in_gff, in_count_dir, out_dir):
         Produce .tab files with differential usage analysiss results in the
         output directory.
     """
-    args = ["/usr/local/bin/Rscript", JUNCTIONSEQ_R, in_decoder, in_gff,
-            in_count_dir, out_dir]
+    args = ["/usr/local/bin/Rscript", encount.config.JUNCTIONSEQ_R, in_decoder,
+            in_gff, in_count_dir, out_dir]
 
     print(" ".join(args))
     return subprocess.call(args)
