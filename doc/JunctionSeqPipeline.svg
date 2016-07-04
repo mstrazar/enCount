@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="595.279px" height="841.89px" viewBox="0 0 595.279 841.89" enable-background="new 0 0 595.279 841.89"
+	 xml:space="preserve">
+<rect x="87.139" y="413.373" fill="#FFFFFF" stroke="#000000" stroke-miterlimit="10" width="97.933" height="36.999"/>
+<rect x="99.002" y="212.373" fill="#FFFFFF" stroke="#000000" stroke-miterlimit="10" width="66.492" height="19.387"/>
+<rect x="85.073" y="218.427" fill="none" width="100" height="17.333"/>
+<text transform="matrix(1 0 0 1 108.7683 225.5254)" font-family="'ArialNarrow'" font-size="10">metadata.tsv</text>
+<g>
+	<rect x="355.544" y="212.011" fill="#FFFFFF" stroke="#000000" stroke-miterlimit="10" width="45.5" height="20.334"/>
+	<g>
+		<rect x="283.152" y="204.011" fill="#FFFFFF" stroke="#091CA8" stroke-miterlimit="10" width="37.334" height="20.334"/>
+		<rect x="287.652" y="207.511" fill="#FFFFFF" stroke="#091CA8" stroke-miterlimit="10" width="37.334" height="20.334"/>
+		<rect x="292.152" y="211.678" fill="#FFFFFF" stroke="#091CA8" stroke-miterlimit="10" width="37.334" height="20.334"/>
+	</g>
+	<rect x="259.46" y="217.678" fill="none" width="100" height="13.333"/>
+	<text transform="matrix(1 0 0 1 302.0359 224.7778)" font-family="'ArialNarrow'" font-size="10">bam</text>
+	<rect x="326.875" y="218.011" fill="none" width="100.003" height="13.333"/>
+	<text transform="matrix(1 0 0 1 362.5955 225.1113)" font-family="'ArialNarrow'" font-size="10">start.gtf</text>
+</g>
+<path d="M193.24,245.979"/>
+<rect x="29.838" y="436.039" fill="none" width="206.668" height="17.332"/>
+<text transform="matrix(1 0 0 1 90.6018 423.1362)" font-family="'ArialNarrow'" font-size="10">decoderBySample_all.txt</text>
+<rect x="29.838" y="456.039" fill="none" width="206.668" height="17.332"/>
+<text transform="matrix(1 0 0 1 98.4167 443.1382)" font-family="'ArialNarrow'" font-size="10">decoderByUID_all.txt</text>
+<rect x="29.838" y="456.039" fill="none" width="206.668" height="17.332"/>
+<rect x="224.459" y="655.039" fill="#FFFFFF" stroke="#A0980D" stroke-miterlimit="10" width="51.404" height="20.334"/>
+<rect x="198.16" y="622.373" fill="#DFE8F3" width="112.001" height="22"/>
+<text transform="matrix(1 0 0 1 206.2922 636.8706)" font-family="'ArialNarrow'" font-size="10">run_JunctionSeq_analysis</text>
+<text transform="matrix(1 0 0 1 194.7649 616.7065)" font-family="'ArialNarrow'" font-size="8">(in_decoder, in_gff, in_count_dir, out_dir)</text>
+<rect x="228.459" y="659.873" fill="#FFFFFF" stroke="#A0980D" stroke-miterlimit="10" width="51.404" height="20.334"/>
+<text transform="matrix(1 0 0 1 235.4324 673.3735)" font-family="'ArialNarrow'" font-size="10">junseq.tab</text>
+<g>
+	<rect x="185.636" y="714.373" fill="#DFE8F3" width="137.05" height="22"/>
+	<text transform="matrix(1 0 0 1 203.3337 728.8706)" font-family="'ArialNarrow'" font-size="10">merge_JunctionSeq_results</text>
+	
+		<rect x="212.188" y="748.873" fill="#FFFFFF" stroke="#000000" stroke-width="1.3583" stroke-miterlimit="10" width="83.946" height="20.334"/>
+	<text transform="matrix(1 0 0 1 229.051 762.3735)" font-family="'ArialNarrow'" font-size="10">junseq_all.tab</text>
+</g>
+<g>
+	<rect x="198.16" y="529.205" fill="#DFE8F3" width="112.002" height="22"/>
+	<text transform="matrix(1 0 0 1 206.4919 543.2046)" font-family="'ArialNarrow'" font-size="10">run_QoRTs_novel_splices</text>
+	
+		<rect x="228.459" y="559.537" fill="#FFFFFF" stroke="#000000" stroke-width="1.0629" stroke-miterlimit="10" width="51.404" height="20.334"/>
+	<rect x="206.427" y="565.537" fill="none" width="100.002" height="13.334"/>
+	<text transform="matrix(1 0 0 1 234.4792 573.0376)" font-family="'ArialNarrow'" font-size="10">merged.gff</text>
+	<text transform="matrix(1 0 0 1 204.5569 524.7065)" font-family="'ArialNarrow'" font-size="8">(in_dir, in_gtf, in_decoder, out_dir)</text>
+</g>
+<g>
+	<rect x="285.711" y="399.705" fill="#DFE8F3" width="116.95" height="22"/>
+	<text transform="matrix(1 0 0 1 295.1501 413.7036)" font-family="'ArialNarrow'" font-size="10">run_QoRTs_merge_counts</text>
+	<g>
+		<rect x="316.956" y="440.205" fill="#FFFFFF" stroke="#A0980D" stroke-miterlimit="10" width="47.012" height="20.334"/>
+		<rect x="322.622" y="444.371" fill="#FFFFFF" stroke="#A0980D" stroke-miterlimit="10" width="47.014" height="20.334"/>
+		<rect x="294.186" y="450.372" fill="none" width="100" height="13.333"/>
+		<text transform="matrix(1 0 0 1 330.0808 457.4692)" font-family="'ArialNarrow'" font-size="10">mcounts</text>
+	</g>
+	<text transform="matrix(1 0 0 1 304.4324 394.3726)" font-family="'ArialNarrow'" font-size="8">(in_dir, in_decoder, out_dir)</text>
+</g>
+<g>
+	<g>
+		<polyline fill="none" stroke="#000000" stroke-width="0.4928" stroke-miterlimit="10" points="138.139,473.371 138.139,493.85 
+			253.864,493.85 253.864,510.336 		"/>
+		<g>
+			<polygon points="251.406,509.617 253.864,513.873 256.321,509.617 			"/>
+		</g>
+	</g>
+</g>
+<rect x="17.881" y="491.205" fill="none" width="115.291" height="39.668"/>
+<text transform="matrix(1 0 0 1 17.8811 496.9331)"><tspan x="0" y="0" font-family="'ArialNarrow-Bold'" font-size="8">Key step: </tspan><tspan x="31.352" y="0" font-family="'ArialNarrow'" font-size="8">Merged decoder file is </tspan><tspan x="0" y="9.6" font-family="'ArialNarrow'" font-size="8">required to merge all newly discovered </tspan><tspan x="0" y="19.199" font-family="'ArialNarrow'" font-size="8">splice junctions and produce a single, </tspan><tspan x="0" y="28.799" font-family="'ArialNarrow'" font-size="8">new .gff. </tspan></text>
+<rect x="339.635" y="655.041" fill="none" width="113.5" height="30"/>
+<text transform="matrix(1 0 0 1 339.6345 660.7681)"><tspan x="0" y="0" font-family="'ArialNarrow'" font-size="8">One analysis results file per </tspan><tspan x="0" y="9.601" font-family="'ArialNarrow'" font-size="8">experiment. These cointaint exactly </tspan><tspan x="0" y="19.2" font-family="'ArialNarrow'" font-size="8">equal line indices (exon bins).</tspan></text>
+<g>
+	<rect x="288.185" y="256.79" fill="#DFE8F3" width="112.001" height="22"/>
+	<text transform="matrix(1 0 0 1 311.1023 270.6777)" font-family="'ArialNarrow'" font-size="10">run_QoRTs_count</text>
+	<g>
+		<g>
+			<rect x="282.781" y="298.958" fill="#FFFFFF" stroke="#091CA8" stroke-miterlimit="10" width="37.333" height="20.334"/>
+			<rect x="287.281" y="302.458" fill="#FFFFFF" stroke="#091CA8" stroke-miterlimit="10" width="37.333" height="20.334"/>
+			<rect x="291.781" y="306.625" fill="#FFFFFF" stroke="#091CA8" stroke-miterlimit="10" width="37.333" height="20.334"/>
+		</g>
+		<rect x="259.089" y="306.292" fill="none" width="100" height="13.333"/>
+		<text transform="matrix(1 0 0 1 298.9187 315.7158)" font-family="'ArialNarrow'" font-size="10">count</text>
+		<g>
+			<rect x="352.975" y="298.958" fill="#FFFFFF" stroke="#091CA8" stroke-miterlimit="10" width="37.332" height="20.334"/>
+			<rect x="357.475" y="302.458" fill="#FFFFFF" stroke="#091CA8" stroke-miterlimit="10" width="37.332" height="20.334"/>
+			<rect x="361.975" y="306.625" fill="#FFFFFF" stroke="#091CA8" stroke-miterlimit="10" width="37.332" height="20.334"/>
+		</g>
+		<rect x="329.282" y="306.292" fill="none" width="100" height="13.333"/>
+		<text transform="matrix(1 0 0 1 365.3777 315.7158)" font-family="'ArialNarrow'" font-size="10">new.gtf</text>
+	</g>
+	<text transform="matrix(1 0 0 1 309.5408 252.8438)" font-family="'ArialNarrow'" font-size="8">(in_bam, in_gtf, out_dir)</text>
+</g>
+<rect x="406.827" y="263.567" fill="none" width="113.5" height="8.445"/>
+<text transform="matrix(1 0 0 1 406.8269 269.2949)" font-family="'ArialNarrow'" font-size="8">Run in parallel per each sample.</text>
+<rect x="339.635" y="655.041" fill="none" width="113.5" height="30"/>
+<text transform="matrix(1 0 0 1 339.6345 660.7681)"><tspan x="0" y="0" font-family="'ArialNarrow'" font-size="8">One analysis results file per </tspan><tspan x="0" y="9.601" font-family="'ArialNarrow'" font-size="8">experiment. These cointaint exactly </tspan><tspan x="0" y="19.2" font-family="'ArialNarrow'" font-size="8">equal line indices (exon bins).</tspan></text>
+<rect x="418.944" y="408.119" fill="none" width="121" height="11.169"/>
+<text transform="matrix(1 0 0 1 418.9441 413.8472)" font-family="'ArialNarrow'" font-size="8">Run in parallel per each experiment.</text>
+<rect x="340.722" y="631.287" fill="none" width="140.5" height="11.168"/>
+<text transform="matrix(1 0 0 1 340.7224 637.0142)" font-family="'ArialNarrow'" font-size="8">Run in parallel per each experiment.</text>
+<text transform="matrix(1 0 0 1 17.8811 29.4448)" font-family="'ArialNarrow-Bold'" font-size="12">JunctionSeq pipeline function dependencies</text>
+<text transform="matrix(1 0 0 1 17.8811 43.4448)"><tspan x="0" y="0" font-family="'ArialNarrow'" font-size="8">commit 292350c2b55ae90b85cc55c442ae65572249d86a</tspan><tspan x="0" y="9.6" font-family="'ArialNarrow'" font-size="8">Author: mstrazar &lt;martin.strazar@gmail.com&gt;</tspan><tspan x="0" y="19.2" font-family="'ArialNarrow'" font-size="8">Date:   Mon Jul 4 17:59:50 2016 +0200</tspan></text>
+<rect x="17.881" y="77.455" fill="#DFE8F3" width="15.27" height="16.184"/>
+<text transform="matrix(1 0 0 1 37.6394 87.7515)" font-family="'ArialNarrow'" font-size="8">function (parameter1, parameter2, ...)</text>
+<rect x="17.881" y="99.409" fill="#FFFFFF" stroke="#000000" stroke-miterlimit="10" width="15.27" height="16.184"/>
+<text transform="matrix(1 0 0 1 37.6394 109.7056)" font-family="'ArialNarrow'" font-size="8">ONE file for all samples and experiments</text>
+<g>
+	<rect x="15.518" y="123.034" fill="#FFFFFF" stroke="#A0980D" stroke-miterlimit="10" width="15.27" height="16.184"/>
+	<rect x="17.881" y="125.034" fill="#FFFFFF" stroke="#A0980D" stroke-miterlimit="10" width="15.27" height="16.184"/>
+</g>
+<g>
+	<rect x="13.268" y="150.859" fill="#FFFFFF" stroke="#091CA8" stroke-miterlimit="10" width="15.27" height="16.184"/>
+	<rect x="15.518" y="153.425" fill="#FFFFFF" stroke="#091CA8" stroke-miterlimit="10" width="15.27" height="16.184"/>
+	<rect x="17.881" y="155.425" fill="#FFFFFF" stroke="#091CA8" stroke-miterlimit="10" width="15.27" height="16.184"/>
+</g>
+<text transform="matrix(1 0 0 1 37.6394 134.3306)" font-family="'ArialNarrow'" font-size="8">ONE file per experiment</text>
+<text transform="matrix(1 0 0 1 37.6394 163.439)"><tspan x="0" y="0" font-family="'ArialNarrow'" font-size="8">ONE file per each </tspan><tspan x="53.605" y="0" font-family="'ArialNarrow'" font-size="8">s</tspan><tspan x="57.047" y="0" font-family="'ArialNarrow'" font-size="8">ample</tspan></text>
+<g>
+	<g>
+		<rect x="86.613" y="292.278" fill="#FFFFFF" stroke="#A0980D" stroke-miterlimit="10" width="86.5" height="37.067"/>
+		<rect x="91.382" y="296.445" fill="#FFFFFF" stroke="#A0980D" stroke-miterlimit="10" width="86.5" height="37.067"/>
+	</g>
+	<rect x="28.914" y="299.144" fill="none" width="206.667" height="17.333"/>
+	<text transform="matrix(1 0 0 1 95.2727 307.2441)" font-family="'ArialNarrow'" font-size="10">decoderBySample.txt</text>
+	<rect x="28.914" y="319.144" fill="none" width="206.667" height="17.333"/>
+	<text transform="matrix(1 0 0 1 102.116 327.2441)" font-family="'ArialNarrow'" font-size="10">decoderByUID.txt</text>
+	<rect x="76.247" y="257.761" fill="#DFE8F3" width="112" height="22"/>
+	<text transform="matrix(1 0 0 1 98.9084 271.7598)" font-family="'ArialNarrow'" font-size="10">generate_decoder</text>
+	<rect x="28.914" y="299.144" fill="none" width="206.667" height="17.333"/>
+	<rect x="28.914" y="319.144" fill="none" width="206.667" height="17.333"/>
+	<text transform="matrix(1 0 0 1 100.1555 252.8438)" font-family="'ArialNarrow'" font-size="8">(in_metadata, out_dir)</text>
+</g>
+<g>
+	<line x1="0" y1="239.445" x2="595.279" y2="239.445"/>
+	<g>
+		<line fill="none" stroke="#9B9B9B" stroke-miterlimit="10" x1="0" y1="239.445" x2="1" y2="239.445"/>
+		
+			<line fill="none" stroke="#9B9B9B" stroke-miterlimit="10" stroke-dasharray="1.9976,1.9976" x1="2.997" y1="239.445" x2="593.28" y2="239.445"/>
+		<line fill="none" stroke="#9B9B9B" stroke-miterlimit="10" x1="594.279" y1="239.445" x2="595.279" y2="239.445"/>
+	</g>
+</g>
+<g>
+	<line x1="0" y1="741.445" x2="595.279" y2="741.445"/>
+	<g>
+		<line fill="none" stroke="#9B9B9B" stroke-miterlimit="10" x1="0" y1="741.445" x2="1" y2="741.445"/>
+		
+			<line fill="none" stroke="#9B9B9B" stroke-miterlimit="10" stroke-dasharray="1.9976,1.9976" x1="2.997" y1="741.445" x2="593.28" y2="741.445"/>
+		<line fill="none" stroke="#9B9B9B" stroke-miterlimit="10" x1="594.279" y1="741.445" x2="595.279" y2="741.445"/>
+	</g>
+</g>
+<text transform="matrix(1 0 0 1 12.1394 229.7778)" font-family="'ArialNarrow-Bold'" font-size="8">INPUT</text>
+<text transform="matrix(1 0 0 1 12.1394 762.3735)" font-family="'ArialNarrow-Bold'" font-size="8">OUTPUT</text>
+<rect x="339.635" y="718.873" fill="none" width="113.5" height="30"/>
+<text transform="matrix(1 0 0 1 339.6345 724.6001)" font-family="'ArialNarrow'" font-size="8">(TODO)</text>
+</svg>
