@@ -49,7 +49,7 @@ def generate_decoders(in_metafile, control_dir, out_dir):
     """
     # Unique files containg experimental data in one column
     # Required to merge annotation .gff with nove splices later
-    main_sample_ids = set()
+    main_unique_ids = set()
     header_bysample = ["sample.ID", "group.ID"]
     header_byuid    = ["sample.ID", "lane.ID", "unique.ID", "qc.data.dir",
                         "group.ID", "input.read.pair.count"]
@@ -105,10 +105,10 @@ def generate_decoders(in_metafile, control_dir, out_dir):
                row[EXPERIMENT_ACCESSION] == cid_result:
                 sample_id = row[EXPERIMENT_ACCESSION]
                 group_id  = row[EXPERIMENT_TARGET].replace(" ", "_")
-                lane_id   = row[BIOLOGICAL_REPLICATES]
+                lane_id   = "R"+row[BIOLOGICAL_REPLICATES]
                 unique_id = row[FILE_ACCESSION]
                 qc_data_dir = row[FILE_ACCESSION]
-                input_read_pair_count = 0                          # TODO: check
+                input_read_pair_count = "nan"
 
                 row_bysample = { "sample.ID": sample_id, "group.ID": group_id}
                 writer_bysample.writerow(row_bysample)
@@ -119,10 +119,10 @@ def generate_decoders(in_metafile, control_dir, out_dir):
                              "input.read.pair.count": input_read_pair_count}
                 writer_byuid.writerow(row_byuid)
 
-                if sample_id not in main_sample_ids:
+                if unique_id not in main_unique_ids:
                     writer_byuid_main.writerow(row_byuid)
                     writer_bysample_main.writerow(row_bysample)
-                    main_sample_ids.add(sample_id)
+                    main_unique_ids.add(unique_id)
 
         print("Sucessfully generated %s." % out_bysample)
         print("Sucessfully generated %s." % out_byuid)
@@ -154,10 +154,10 @@ def run_QoRTs_count(in_bam, in_gtf, out_dir, test_run=False):
     stderr = open(os.path.join(out_dir, "run_QoRTs_count.err.txt"), "w")
 
     args = ["java", "-jar", enCount.config.QORTS_JAR,
-            "QC", "--stranded",
-            "--testRun" if test_run else "",
-            in_bam, in_gtf,
-            out_dir]
+            "QC", "--stranded",]
+    if test_run:
+        args = args + ["--testRun"]
+    args = args + [in_bam, in_gtf, out_dir]
 
     print(" ".join(args))
     return subprocess.call(args, stdout=stdout, stderr=stderr)
@@ -178,8 +178,9 @@ def run_QoRTs_merge_counts(in_dir, in_decoder, out_dir, test_run=False):
         Merge count files given by the decoder and place in the output
         directory.
     """
-    stdout = open(os.path.join(out_dir, "run_QoRTs_merge_counts.out.txt"), "w")
-    stderr = open(os.path.join(out_dir, "run_QoRTs_merge_counts.err.txt"), "w")
+    std_dir = os.path.dirname(in_decoder)
+    stdout = open(os.path.join(std_dir, "run_QoRTs_merge_counts.out.txt"), "w")
+    stderr = open(os.path.join(std_dir, "run_QoRTs_merge_counts.err.txt"), "w")
 
     args = ["java", "-jar", enCount.config.QORTS_JAR,
             "mergeAllCounts", in_dir, in_decoder, out_dir]
@@ -196,9 +197,9 @@ def run_QoRTs_size_factors(in_dir, in_decoder, out_file):
     :param out_file
         Size factor file to be generated
     """
-    out_dir = os.path.dirname(out_file)
-    stdout = open(os.path.join(out_dir, "run_QoRTs_size_factors.out.txt"), "w")
-    stderr = open(os.path.join(out_dir, "run_QoRTs_size_factors.err.txt"), "w")
+    stddir = os.path.dirname(out_file)
+    stdout = open(os.path.join(stddir, "run_QoRTs_size_factors.out.txt"), "w")
+    stderr = open(os.path.join(stddir, "run_QoRTs_size_factors.err.txt"), "w")
 
     args = [enCount.config.RSCRIPT, enCount.config.QORTS_R,
             in_dir, in_decoder, out_file]
@@ -253,8 +254,9 @@ def run_JunctionSeq_analysis(in_decoder, in_gff, in_gtf_dir, out_dir):
         Produce .tab files with differential usage analysiss results in the
         output directory.
     """
-    stdout = open(os.path.join(out_dir,"run_JunctionSeq_analysis.out.txt"), "w")
-    stderr = open(os.path.join(out_dir,"run_JunctionSeq_analysis.err.txt"), "w")
+    stddir = os.path.dirname(in_decoder)
+    stdout = open(os.path.join(stddir,"run_JunctionSeq_analysis.out.txt"), "w")
+    stderr = open(os.path.join(stddir,"run_JunctionSeq_analysis.err.txt"), "w")
 
     args = [enCount.config.RSCRIPT, enCount.config.JUNCTIONSEQ_R, in_decoder,
             in_gff, in_gtf_dir, out_dir]
