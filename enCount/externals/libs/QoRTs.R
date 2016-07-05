@@ -11,11 +11,12 @@ print(in_decoder)
 print(out_file)
 
 library("QoRTs")
-# directory <- paste0(system.file("extdata/", package="QoRTsExampleData", mustWork=TRUE),"/");
 
 directory = in_dir
 decoder.data = read.table(in_decoder, header=T, stringsAsFactors=F);
 
+# calc.DESeq2 = TRUE results in error for zero gene counts
 res = read.qc.results.data(directory, decoder=decoder.data,
-    calc.DESeq2 = TRUE, calc.edgeR = TRUE);
-get.size.factors(res, outfile=out_file);
+    calc.DESeq2 = FALSE, calc.edgeR = TRUE,);
+
+get.size.factors(res, outfile=out_file, sf.method=c("edgeR"));
