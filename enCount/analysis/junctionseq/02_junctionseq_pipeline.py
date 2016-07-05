@@ -30,9 +30,10 @@ out_gtf_dir     = os.path.join(data_output,   "gtf/")
 out_jscs_dir    = os.path.join(data_output,   "jscs/")
 out_size_factors = os.path.join(out_jscs_dir, "size_factors.txt")
 
-# Read experiment ids
+# Read non-control experiment ids
 experiments = sorted(list(set([row[jseq.EXPERIMENT_ACCESSION] for row in
-               csv.DictReader(open(in_metafile), delimiter="\t")])))
+               csv.DictReader(open(in_metafile), delimiter="\t")
+                if row[jseq.EXPERIMENT_TARGET] != jseq.CONTROLID])))
 
 # Open worker pool
 pool = mp.Pool(n_workers)
@@ -41,8 +42,19 @@ pool = mp.Pool(n_workers)
 r = jseq.generate_decoders(in_metafile, in_dir_control, out_jscs_dir)
 assert r == 0
 
-# 2.
-# TODO: call counting in separate processes per sample
+# 2. Call counting in parallel per sample
+in_decoder_uid = os.path.join(out_jscs_dir, "decoder.byUID.txt")
+samples = [row["unique.ID"] for row in csv.DictReader(open(in_decoder_uid),
+                                                      delimiter="\t")]
+inputs = []
+for sample in samples:
+    sample_out_dir = os.path.join(out_dir_raw_cts, sample)
+    if not os.path.exists(sample_out_dir):
+        os.makedirs(sample_out_dir)
+    bam = os.path.join(in_dir_bam, sample + ".bam")
+    inputs.append((bam, in_gtf, sample_out_dir))
+results = pool.starmap(jseq.run_QoRTs_count, inputs)
+assert all(map(lambda r: r == 0, results))
 
 # 3. Call merge counts in parallel per experiment
 # Use multiprocessing ; make sure arguments are in correct order
@@ -57,11 +69,9 @@ assert all(map(lambda r: r == 0, results))
 
 
 # 4. Size factors are required for correctly merging novel splice sites
-in_decoder_uid = os.path.join(out_jscs_dir, "decoder.byUID.txt")
 jseq.run_QoRTs_size_factors(in_dir=out_dir_raw_cts,
                        in_decoder=in_decoder_uid,
                        out_file=out_size_factors)
-
 
 # 5. Discover novel splice junctions for all experiments to generate a common
 # .gff file
@@ -82,4 +92,3 @@ for exp_dir in experiments:
 
 results = pool.starmap(jseq.run_JunctionSeq_analysis, inputs)
 assert all(map(lambda r: r == 0, results))
-
