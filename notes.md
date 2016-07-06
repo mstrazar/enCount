@@ -20,3 +20,7 @@ docker-compose up
 # run:docker volume create --name mongodata
 # )
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+# check if main sees proper /endata folder:
+docker-compose run main /bin/bash
+
