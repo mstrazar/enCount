@@ -1,4 +1,5 @@
 import os
+import shutil
 import requests
 import hashlib
 import tempfile
@@ -71,10 +72,10 @@ def download(url, file_path, expected_md5, expected_size, dbrec_id,
         os.remove(temp_filename)
         return
 
-    # rename file to proper name
+    # move file to proper name
     print('saving to file: {:s}'.format(abs_file_path))
     try:
-        os.rename(temp_filename, abs_file_path)
+        shutil.move(temp_filename, abs_file_path)
     except FileNotFoundError:
         print('ERROR, file could not be saved to target folder')
         os.remove(temp_filename)

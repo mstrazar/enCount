@@ -29,8 +29,8 @@ JUNCTIONSEQ_R = os.path.join(_config_root, "externals", "libs", "JunctionSeq.R")
 try:
     from .myconfig import *
 except ImportError:
-    print('enCount: Warning, please define local config in myconfig.py and '
-          'store it to folder: {:s}.'.format(_config_root))
+    print('enCount: You can define a local configuration in myconfig.py, '
+          'which needs to be stored in folder: {:s}.'.format(_config_root))
 
 # create folders if not present yet
 if not os.path.exists(data_root):

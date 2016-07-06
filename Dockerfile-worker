@@ -62,4 +62,4 @@ USER enuser
 WORKDIR /home/enuser/enCount
 RUN ../.encountenv/bin/python setup.py develop
 
-ENTRYPOINT ["/home/enuser/.encountenv/bin/rqworker", "--url", "redis://redis", "downloads"]
+CMD ["/home/enuser/.encountenv/bin/rqworker", "--url", "redis://redis", "downloads"]

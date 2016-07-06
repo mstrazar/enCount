@@ -47,5 +47,4 @@ RUN ../.encountenv/bin/python setup.py develop
 
 # EXPOSE 6543
 
-ENTRYPOINT ["/home/enuser/.encountenv/bin/python3", "-m", "enCount.process_loop"]
-#CMD ["/bin/bash"]
+CMD ["/home/enuser/.encountenv/bin/python3", "-m", "enCount.process_loop"]
