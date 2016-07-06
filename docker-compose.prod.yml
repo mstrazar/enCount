@@ -1,0 +1,9 @@
+version: '2'
+volumes:
+  endata:
+    driver: nfs
+    driver_opts:
+        version: 3
+        share: "192.168.27.50:/encode/endata"
+  mongodata:
+    external: true

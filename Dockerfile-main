@@ -4,7 +4,7 @@ MAINTAINER Tomaz Curk <tomazc@gmail.com>
 ENV LC_ALL C.UTF-8
 ENV LANG C.UTF-8
 
-RUN useradd -m -d /home/enuser enuser
+RUN useradd -u 1010 -m -d /home/enuser enuser
 
 # update system and install prerequisites
 # avoid apt-get upgrade -y
