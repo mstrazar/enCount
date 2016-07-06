@@ -13,6 +13,7 @@ addons:
             - libblas-dev
             - liblapack-dev
             - libqt4-dev
+            - git
 
 cache:
     apt: true   # does not work for public repos
