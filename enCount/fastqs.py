@@ -52,12 +52,9 @@ def download(url, file_path, expected_md5, expected_size, dbrec_id,
             # calc md5 and size of file
             file_md5.update(chunk)
             file_size += len(chunk)
-            break
     file_md5 = file_md5.hexdigest()
     print(' size of downloaded file: {:d}'.format(file_size))
     print(' md5 of downloaded file: {:s}'.format(file_md5))
-    file_size = expected_size
-    file_md5 = expected_md5
 
     # check for errors in md5 or size
     if expected_md5 != file_md5:
