@@ -3,21 +3,21 @@ import os
 
 # folder configuration
 _config_root = os.path.split(os.path.abspath(__file__))[0]
-data_root = os.path.join(_config_root, 'data')
 
-genomes_root = os.path.join(_config_root, 'genomes')
-results_root = os.path.join(_config_root, 'results')
-tmp_root = os.path.join(_config_root, 'tmp')
+data_root = os.path.join('/endata/data')
+genomes_root = os.path.join('/endata/genomes')
+results_root = os.path.join('/endata/results')
 
-data_debug_root = os.path.join(data_root, "debug")
+tmp_root = '/tmp/enCount'
+data_debug_root = os.path.join(tmp_root, 'debug')
 
 # Redis store
-REDIS_HOSTNAME = 'redis://localhost'
+REDIS_HOSTNAME = 'redis'
 REDIS_PORT = 6379
 REDIS_DB = 0
 
 # MongoDB
-MONGO_HOSTNAME = 'mongodb://localhost'
+MONGO_HOSTNAME = 'mongodb://mongo'
 MONGO_PORT = 27017
 
 # QoRTS and JunctionSeq scripts
@@ -52,3 +52,4 @@ if not os.path.exists(tmp_root):
     print('Temporary files and folders root folder does not exist. '
           'Will create it at: {:s}'.format(tmp_root))
     os.makedirs(tmp_root)
+
