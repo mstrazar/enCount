@@ -46,13 +46,17 @@ def generate_decoders(in_metafile, control_dir, out_dir):
             SAMP2   RG1     SAMP2_RG1       SAMP2_RG1       CASE    461405
             SAMP2   RG2     SAMP2_RG2       SAMP2_RG2       CASE    467713
             ...
+
+        NOTE: feature input.read.pair.count is optional and is skipped here,
+        but can be computed if original .fastq files are available.
     """
     # Unique files containg experimental data in one column
     # Required to merge annotation .gff with nove splices later
     main_unique_ids = set()
     header_bysample = ["sample.ID", "group.ID"]
     header_byuid    = ["sample.ID", "lane.ID", "unique.ID", "qc.data.dir",
-                        "group.ID", "input.read.pair.count"]
+                        "group.ID",
+                      ]
     out_bysample_main    = open(os.path.join(out_dir, "decoder.bySample.txt"), "wt")
     out_byuid_main       = open(os.path.join(out_dir, "decoder.byUID.txt"), "wt")
     writer_bysample_main = csv.DictWriter(out_bysample_main, delimiter="\t",
@@ -108,7 +112,6 @@ def generate_decoders(in_metafile, control_dir, out_dir):
                 lane_id   = "R"+row[BIOLOGICAL_REPLICATES]
                 unique_id = row[FILE_ACCESSION]
                 qc_data_dir = row[FILE_ACCESSION]
-                input_read_pair_count = "nan"
 
                 row_bysample = { "sample.ID": sample_id, "group.ID": group_id}
                 writer_bysample.writerow(row_bysample)
@@ -116,7 +119,7 @@ def generate_decoders(in_metafile, control_dir, out_dir):
                 row_byuid = {"sample.ID": sample_id, "lane.ID":lane_id,
                              "unique.ID": unique_id, "qc.data.dir": qc_data_dir,
                              "group.ID": group_id,
-                             "input.read.pair.count": input_read_pair_count}
+                             }
                 writer_byuid.writerow(row_byuid)
 
                 if unique_id not in main_unique_ids:
