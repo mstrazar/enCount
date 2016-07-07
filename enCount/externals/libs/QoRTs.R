@@ -17,6 +17,6 @@ decoder.data = read.table(in_decoder, header=T, stringsAsFactors=F);
 
 # calc.DESeq2 = TRUE results in error for zero gene counts
 res = read.qc.results.data(directory, decoder=decoder.data,
-    calc.DESeq2 = FALSE, calc.edgeR = TRUE,);
+    calc.DESeq2 = TRUE, calc.edgeR = FALSE,);
 
-get.size.factors(res, outfile=out_file, sf.method=c("edgeR"));
+get.size.factors(res, outfile=out_file, sf.method=c("DESeq2"));
