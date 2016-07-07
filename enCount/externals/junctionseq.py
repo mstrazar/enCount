@@ -11,6 +11,7 @@ import os
 EXPERIMENT_ACCESSION = "Experiment accession"
 EXPERIMENT_TARGET = "Experiment target"
 BIOLOGICAL_REPLICATES = "Biological replicate(s)"
+TECHNICAL_REPLICATE = "Technical replicate"
 FILE_ACCESSION = "File accession"
 CONTROLID = "Non-specific target control-human"
 
@@ -103,18 +104,24 @@ def generate_decoders(in_metafile, control_dir, out_dir):
         writer_bysample.writeheader()
         writer_byuid.writeheader()
 
+
+        main_sample_ids = set() # Ensure unique rows of decoder by sample
         reader = csv.DictReader(open(in_metafile), delimiter="\t")
         for row in sorted(list(reader), key=lambda r: r[EXPERIMENT_TARGET] == CONTROLID):
             if row[EXPERIMENT_ACCESSION] == experiment_id or \
                row[EXPERIMENT_ACCESSION] == cid_result:
-                sample_id = row[EXPERIMENT_ACCESSION]
+                bio_rep   = row[BIOLOGICAL_REPLICATES]
+                sample_id = row[EXPERIMENT_ACCESSION] + "_B" + bio_rep
                 group_id  = row[EXPERIMENT_TARGET].replace(" ", "_")
-                lane_id   = "R"+row[BIOLOGICAL_REPLICATES]
+                lane_id   = "R"+row[TECHNICAL_REPLICATE]
                 unique_id = row[FILE_ACCESSION]
                 qc_data_dir = row[FILE_ACCESSION]
 
-                row_bysample = { "sample.ID": sample_id, "group.ID": group_id}
-                writer_bysample.writerow(row_bysample)
+                if sample_id not in main_sample_ids:
+                    main_sample_ids.add(sample_id)
+                    row_bysample = { "sample.ID": sample_id, "group.ID": group_id}
+                    writer_bysample.writerow(row_bysample)
+                    writer_bysample_main.writerow(row_bysample)
 
                 row_byuid = {"sample.ID": sample_id, "lane.ID":lane_id,
                              "unique.ID": unique_id, "qc.data.dir": qc_data_dir,
@@ -124,7 +131,6 @@ def generate_decoders(in_metafile, control_dir, out_dir):
 
                 if unique_id not in main_unique_ids:
                     writer_byuid_main.writerow(row_byuid)
-                    writer_bysample_main.writerow(row_bysample)
                     main_unique_ids.add(unique_id)
 
         print("Sucessfully generated %s." % out_bysample)
