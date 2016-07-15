@@ -36,8 +36,7 @@ def run_star_generate_genome(in_gtf, in_genome_fasta_dir, out_genome_dir,
         args.append(f)
 
     print(" ".join(args))
-    subprocess.call(args)
-    return
+    return subprocess.call(args)
 
 
 def run_star(in_fastq_pair, in_genome_dir, out_dir, num_threads=4,
@@ -99,9 +98,7 @@ def run_star(in_fastq_pair, in_genome_dir, out_dir, num_threads=4,
         args.append("zcat")
 
     print(" ".join(args))
-    subprocess.call(args)
-
-    return
+    return subprocess.call(args)
 
 
 
