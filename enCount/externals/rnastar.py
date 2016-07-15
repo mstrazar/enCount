@@ -2,6 +2,7 @@
 import subprocess
 import glob
 import os
+from enCount.config import STAR_EXEC
 
 
 def run_star_generate_genome(in_gtf, in_genome_fasta_dir, out_genome_dir,
@@ -26,12 +27,9 @@ def run_star_generate_genome(in_gtf, in_genome_fasta_dir, out_genome_dir,
     """
 
     # List all chromosomes fasta files
-    args = ["STAR",
-            "--runThreadN", str(num_threads),
-            "--runMode",        "genomeGenerate",
-            "--genomeDir",      out_genome_dir,
-            "--sjdbGTFfile",    in_gtf,
-            "--sjdbOverhang",   str(read_length-1),]
+    args = [STAR_EXEC, "--runThreadN", str(num_threads), "--runMode",
+            "genomeGenerate", "--genomeDir", out_genome_dir, "--sjdbGTFfile",
+            in_gtf, "--sjdbOverhang", str(read_length-1),]
 
     args.append("--genomeFastaFiles")
     for f in glob.glob(os.path.join(in_genome_fasta_dir, "*.fa")):
@@ -42,15 +40,15 @@ def run_star_generate_genome(in_gtf, in_genome_fasta_dir, out_genome_dir,
     return
 
 
-def run_star(in_fastq, in_genome_dir, out_dir, num_threads=4,
+def run_star(in_fastq_pair, in_genome_dir, out_dir, num_threads=4,
              clip3pAdapterSeq="-"):
     """
         Run STAR aligner on the in_fastq file.
 
         Produces out_dir/Aligned.out.sam .
 
-        :param in_fastq
-            Input .fastq file.
+        :param in_fastq_pair
+            Input .fastq file pair.
         :param in_genome_dir
             Directory with generated genome indices.
         :param num_threads
@@ -68,17 +66,35 @@ def run_star(in_fastq, in_genome_dir, out_dir, num_threads=4,
             Assume 3' adaptor clipping.
 
     """
-    assert in_fastq.endswith(".fastq.gz") or in_fastq.endswith(".fastq")
+    assert len(in_fastq_pair) == 2
+    assert in_fastq_pair[0].endswith(".fastq.gz") or in_fastq_pair[0].endswith(".fastq")
+    assert in_fastq_pair[1].endswith(".fastq.gz") or in_fastq_pair[1].endswith(".fastq")
 
-    args = ["STAR",
-            "--readFilesIn",       in_fastq,
+
+    # Basic options
+    args = [STAR_EXEC,
+            "--readFilesIn",       in_fastq_pair[0], in_fastq_pair[1],
             "--genomeDir",         in_genome_dir,
             "--runThreadN",        str(num_threads),
             "--outFileNamePrefix", out_dir,
-            "--clip3pAdapterSeq",   clip3pAdapterSeq,
+            # "--clip3pAdapterSeq",   clip3pAdapterSeq,
             "--outSAMtype", "BAM", "SortedByCoordinate",]
 
-    if in_fastq.endswith(".gz"):
+    # Standard ENCODE options (Manual 2.5.1, p. 7)
+    args += [
+        "--outFilterType", "BySJout",
+        "--outFilterMultimapNmax",  "20",
+        "--alignSJoverhangMin",  "8",
+        "--alignSJDBoverhangMin", "1",
+        "--outFilterMismatchNmax", "999",
+        "--alignIntronMin", "20",
+        "--alignIntronMax", "1000000",
+        "--alignMatesGapMax", "1000000",
+    ]
+
+
+    # Process .gzip
+    if in_fastq_pair[0].endswith(".gz"):
         args.append("--readFilesCommand")
         args.append("zcat")
 
