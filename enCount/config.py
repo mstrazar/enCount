@@ -8,6 +8,8 @@ data_root = os.path.join('/endata/data')
 genomes_root = os.path.join('/endata/genomes')
 results_root = os.path.join('/endata/results')
 
+mappings_root = os.path.join(results_root, "mappings")
+
 tmp_root = '/tmp/enCount'
 data_debug_root = os.path.join(tmp_root, 'debug')
 
@@ -25,7 +27,11 @@ QORTS_JAR = os.path.join(_config_root, "externals", "libs", "QoRTs.jar")
 QORTS_R = os.path.join(_config_root, "externals", "libs", "QoRTs.R")
 JUNCTIONSEQ_R = os.path.join(_config_root, "externals", "libs", "JunctionSeq.R")
 
-# read from local config
+# STAR aligner
+STAR_EXEC = "/home/enuser/bin/STAR"
+
+
+# read (override) from local config
 try:
     from .myconfig import *
 except ImportError:
@@ -47,6 +53,11 @@ if not os.path.exists(results_root):
     print('Results root folder does not exist. Will create it at: '
           '{:s}'.format(results_root))
     os.makedirs(results_root)
+
+if not os.path.exists(mappings_root):
+    print('Results root folder does not exist. Will create it at: '
+          '{:s}'.format(mappings_root))
+    os.makedirs(mappings_root)
 
 if not os.path.exists(tmp_root):
     print('Temporary files and folders root folder does not exist. '
