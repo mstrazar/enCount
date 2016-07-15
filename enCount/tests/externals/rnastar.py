@@ -1,29 +1,47 @@
 # coding=utf-8
+import os
 from enCount.externals.rnastar import run_star, run_star_generate_genome
+from enCount.config import data_root, genomes_root
+import shutil
+import unittest
 
+class TestRNASTAR(unittest.TestCase):
 
-def test():
-    """
-    Testing the STAR aligner.
-    """
+    def test_rnastar(self):
+        """
+        Testing the STAR aligner pipeline inside a container.
+        """
+        in_genome_fasta_dir = os.path.join(genomes_root, "fasta", "hg19_chrY")
+        in_gtf = os.path.join(genomes_root, "gtf", "Homo_sapiens.GRCh37.75.chrY.gtf.gz")
+        in_fastq_1 = os.path.join(data_root, "ENCSRSAMPLE", "ENCFF018JDZ_filter.fastq.gz")
+        in_fastq_2 = os.path.join(data_root, "ENCSRSAMPLE", "ENCFF273CYL_filter.fastq.gz")
+        out_genome_dir = os.path.join(genomes_root, "index", "Homo_sapiens.GRCh37.75")
+        out_dir = os.path.join(data_root, "bam", "ENCSRSAMPLE")
+        num_threads = 10
 
-    in_gtf   = "/n/users/martins/Dev/data/encount/QoRTsExampleData/inst/extdata/anno.gtf.gz"
-    in_fastq = "/n/users/martins/Dev/data/encount/fastq/ENCFF523XON.fastq"
+        # Check input files
+        for f_in in [in_genome_fasta_dir, in_gtf, in_fastq_1, in_fastq_2]:
+            self.assertTrue(os.path.exists(f_in))
 
-    out_genome_dir = "/n/users/martins/Dev/data/encode/genomes/"
-    in_genome_fasta_dir = "/n/users/martins/Dev/data/genome/hg19_unzipped"
+        # Empty test folders
+        for d_out in [out_genome_dir, out_dir]:
+            if os.path.exists(d_out):
+                shutil.rmtree(d_out)
+            os.makedirs(d_out)
 
+        # Generate genome
+        r = run_star_generate_genome(in_gtf=in_gtf,
+                                 in_genome_fasta_dir=in_genome_fasta_dir,
+                                 out_genome_dir=out_genome_dir,
+                                 num_threads=num_threads)
+        self.assertEqual(r, 0)
 
-    out_dir   = "/n/users/martins/Dev/data/encount/bam/"
-
-    # Generate genome
-    run_star_generate_genome(in_gtf=in_gtf,
-                             in_genome_fasta_dir=in_genome_fasta_dir,
-                             out_genome_dir=out_genome_dir)
-
-    # Run alignment
-    run_star(in_fastq=in_fastq, out_dir=out_dir, in_genome_dir=out_genome_dir)
+        # Run alignment
+        r = run_star(in_fastq_pair=[in_fastq_1, in_fastq_2],
+                 out_dir=out_dir, in_genome_dir=out_genome_dir,
+                 num_threads=num_threads)
+        self.assertEqual(r, 0)
 
 
 if __name__ == "__main__":
-    test()
+    unittest.main()
