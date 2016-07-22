@@ -26,10 +26,12 @@ def run_star_generate_genome(in_gtf, in_genome_fasta_dir, out_genome_dir,
         Generate genome index files in out_genome_dir.
     """
 
-    # List all chromosomes fasta files
+    tmp_dir = os.path.join(out_genome_dir, "STARtmp")
+
     args = [STAR_EXEC, "--runThreadN", str(num_threads), "--runMode",
             "genomeGenerate", "--genomeDir", out_genome_dir, "--sjdbGTFfile",
-            in_gtf, "--sjdbOverhang", str(read_length-1),]
+            in_gtf, "--sjdbOverhang", str(read_length-1),
+            "--outFileNamePrefix", tmp_dir]
 
     args.append("--genomeFastaFiles")
     for f in glob.glob(os.path.join(in_genome_fasta_dir, "*.fa")):
@@ -69,6 +71,7 @@ def run_star(in_fastq_pair, in_genome_dir, out_dir, num_threads=4,
     assert in_fastq_pair[0].endswith(".fastq.gz") or in_fastq_pair[0].endswith(".fastq")
     assert in_fastq_pair[1].endswith(".fastq.gz") or in_fastq_pair[1].endswith(".fastq")
 
+    tmp_dir = os.path.join(out_dir, "STARtmp")
 
     # Basic options
     args = [STAR_EXEC,
@@ -77,7 +80,8 @@ def run_star(in_fastq_pair, in_genome_dir, out_dir, num_threads=4,
             "--runThreadN",        str(num_threads),
             "--outFileNamePrefix", out_dir,
             # "--clip3pAdapterSeq",   clip3pAdapterSeq,
-            "--outSAMtype", "BAM", "SortedByCoordinate",]
+            "--outSAMtype", "BAM", "SortedByCoordinate",
+            "--outFileNamePrefix", tmp_dir]
 
     # Standard ENCODE options (Manual 2.5.1, p. 7)
     args += [
