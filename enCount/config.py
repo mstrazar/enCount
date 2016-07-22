@@ -13,6 +13,8 @@ mappings_root = os.path.join(results_root, "mappings")
 tmp_root = '/tmp/enCount'
 data_debug_root = os.path.join(tmp_root, 'debug')
 
+genome_fasta_root = os.path.join(genomes_root, "fasta", "hg19", "Homo_sapiens.GRCh37.75.dna.primary_assembly.fa")
+
 # Redis store
 REDIS_HOSTNAME = 'redis'
 REDIS_PORT = 6379
