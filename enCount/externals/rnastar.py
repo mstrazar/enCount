@@ -71,8 +71,6 @@ def run_star(in_fastq_pair, in_genome_dir, out_dir, num_threads=4,
     assert in_fastq_pair[0].endswith(".fastq.gz") or in_fastq_pair[0].endswith(".fastq")
     assert in_fastq_pair[1].endswith(".fastq.gz") or in_fastq_pair[1].endswith(".fastq")
 
-    tmp_dir = os.path.join(out_dir, "STARtmp")
-
     # Basic options
     args = [STAR_EXEC,
             "--readFilesIn",       in_fastq_pair[0], in_fastq_pair[1],
@@ -80,8 +78,7 @@ def run_star(in_fastq_pair, in_genome_dir, out_dir, num_threads=4,
             "--runThreadN",        str(num_threads),
             "--outFileNamePrefix", out_dir,
             # "--clip3pAdapterSeq",   clip3pAdapterSeq,
-            "--outSAMtype", "BAM", "SortedByCoordinate",
-            "--outFileNamePrefix", tmp_dir]
+            "--outSAMtype", "BAM", "SortedByCoordinate",]
 
     # Standard ENCODE options (Manual 2.5.1, p. 7)
     args += [
