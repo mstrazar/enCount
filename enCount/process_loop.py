@@ -47,6 +47,7 @@ while not stop_it:
     enCount.fastqs.process()
     enCount.experiments.process()
     enCount.mappings.process()
+    enCount.gtfs.process()
     enCount.queues.print_stats()
 #    time.sleep(10)
 
