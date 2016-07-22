@@ -29,7 +29,7 @@ JUNCTIONSEQ_R = os.path.join(_config_root, "externals", "libs", "JunctionSeq.R")
 
 # STAR aligner
 STAR_EXEC = "/home/enuser/bin/STAR"
-
+NUM_THREADS = 4
 
 # read (override) from local config
 try:
