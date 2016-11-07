@@ -39,7 +39,7 @@ def get_latest():
     return None, {}
 
 
-def add_latest_set(experiments, time_stamp=None):
+def add_latest_set(experiments, gtf_ver=None, time_stamp=None):
     """Add new set of experiments obtained from ENCODE.
 
     Experiments are mapped using the latest gtf available.
@@ -47,13 +47,17 @@ def add_latest_set(experiments, time_stamp=None):
     if time_stamp is None:
         time_stamp = datetime.datetime.utcnow()
 
-    gtf_ver = enCount.gtfs.get_version_before(time_stamp)
+    if gtf_ver is None:
+        gtf_ver = enCount.gtfs.get_version_before(time_stamp)
+
     enCount.db.experiments.insert_one({
         'time_stamp': time_stamp,
         'experiments': experiments,
         'map_to_gtf': gtf_ver,
         'status': 'to process',
     })
+
+    return gtf_ver
 
 
 def _get_fastq_files_for_samples(files_recs):
@@ -119,17 +123,17 @@ def process():
                 # make sure fastq is available, if not will be added
                 # to DB and queued for download
                 for pairing in pairings:
-                    fastqs = []
+                    fastq_pair = []
                     for f_acc, f_url, f_size, f_md5 in pairing:
                         fastq = enCount.fastqs.get_file_path(e_acc, f_acc,
                                                              f_url, f_size,
                                                              f_md5)
-                        fastqs.append(fastq)
+                        fastq_pair.append(fastq)
 
                     # map only if all fastqs ready
-                    if any((f is None for f in fastqs)):
+                    if any((f is None for f in fastq_pair)):
                         continue
-                    bam = enCount.mappings.get_bam_file_path(fastqs, gtf_ver)
+                    bam = enCount.mappings.get_bam_file_path(fastq_pair, gtf_ver)
                     bams.append((b_rep, t_rep, bam))
 
             # run junction if all bam files ready
