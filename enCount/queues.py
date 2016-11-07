@@ -15,7 +15,7 @@ _redis_conn = redis.Redis(host=config.REDIS_HOSTNAME,
 downloads = rq.Queue('downloads', connection=_redis_conn, default_timeout=-1)
 experiments = rq.Queue('experiments', connection=_redis_conn, default_timeout=-1)
 mappings = rq.Queue('mappings', connection=_redis_conn, default_timeout=-1)
-gtfs = rq.Queue('gtf', connection=_redis_conn, default_timeout=-1)
+gtfs = rq.Queue('gtfs', connection=_redis_conn, default_timeout=-1)
 failed = rq.get_failed_queue(connection=_redis_conn)
 
 
