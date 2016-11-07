@@ -62,8 +62,6 @@ def get_genome_index_dir(gtf_ver):
         # fetch record from DB
         mapping = mappings[0]
         if mapping['status'] == 'ready':
-            print("Returning")
-            print(mapping[''])
             return mapping['']
         else:
             # not ready
@@ -99,7 +97,7 @@ def get_genome_index_dir(gtf_ver):
             str(new_rec)))
         enCount.db.gtfs.insert_one(new_rec)
         # not ready
-        return
+        return abs_folder
     return
 
 
@@ -142,11 +140,22 @@ if __name__ == "__main__":
     get_genome_index_dir(gtf_ver)
     assert os.path.isdir(os.path.join(genomes_root, "index", "initial"))
 
+    print("Initial queue status")
+    enCount.queues.gtfs.empty()
+    enCount.queues.print_stats()
+
     # Run process loop
     process()
 
     is_finished = False
     while not is_finished:
+        time.sleep(5)
+        print("Waiting for genome index generation to finish")
         enCount.queues.print_stats()
         is_finished = enCount.queues.gtfs.is_empty()
-        time.sleep(5)
+        print()
+
+    # Assert results exist
+    outdir = get_genome_index_dir(gtf_ver)
+    assert outdir is not None
+    assert os.path.exists(os.path.join(outdir, "genomeParameters.txt"))
