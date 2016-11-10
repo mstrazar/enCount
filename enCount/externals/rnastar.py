@@ -1,8 +1,8 @@
 # coding=utf-8
-import subprocess
 import glob
 import os
 from enCount.config import STAR_EXEC
+from subprocess import call as sp_call
 
 
 def run_star_generate_genome(in_gtf, in_genome_fasta_dir, out_genome_dir,
@@ -31,14 +31,14 @@ def run_star_generate_genome(in_gtf, in_genome_fasta_dir, out_genome_dir,
     args = [STAR_EXEC, "--runThreadN", str(num_threads), "--runMode",
             "genomeGenerate", "--genomeDir", out_genome_dir, "--sjdbGTFfile",
             in_gtf, "--sjdbOverhang", str(read_length-1),
-            "--outFileNamePrefix", tmp_dir]
+            "--outFileNamePrefix", tmp_dir, ]
 
     args.append("--genomeFastaFiles")
     for f in glob.glob(os.path.join(in_genome_fasta_dir, "*.fa")):
         args.append(f)
 
     print(" ".join(args))
-    return subprocess.call(args)
+    return sp_call(args)
 
 
 def run_star(in_fastq_pair, in_genome_dir, out_dir, num_threads=4,
@@ -99,7 +99,7 @@ def run_star(in_fastq_pair, in_genome_dir, out_dir, num_threads=4,
         args.append("zcat")
 
     print(" ".join(args))
-    return subprocess.call(args)
+    return sp_call(args)
 
 
 
