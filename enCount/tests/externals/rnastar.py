@@ -1,10 +1,12 @@
 # coding=utf-8
 import os
-from enCount.externals.rnastar import run_star, run_star_generate_genome
 from enCount.config import data_root, genomes_root, results_root
-import shutil
+
 import unittest
-import subprocess
+
+from mock import Mock
+import enCount.externals.rnastar as rnastar
+rnastar.sp_call = Mock(return_value=0)
 
 class TestRNASTAR(unittest.TestCase):
 
@@ -19,10 +21,12 @@ class TestRNASTAR(unittest.TestCase):
         # Check input files
         for f_in in [in_genome_fasta_dir, in_gtf, out_genome_dir]:
             print("\tChecking %s" % f_in)
-            self.assertTrue(os.path.exists(f_in))
+            # self.assertTrue(os.path.exists(f_in))
+
+
 
         # Generate genome
-        r = run_star_generate_genome(in_gtf=in_gtf,
+        r = rnastar.run_star_generate_genome(in_gtf=in_gtf,
                                      in_genome_fasta_dir=in_genome_fasta_dir,
                                      out_genome_dir=out_genome_dir,
                                      num_threads=num_threads)
@@ -45,10 +49,10 @@ class TestRNASTAR(unittest.TestCase):
         # Check input files
         for f_in in [in_fastq_1, in_fastq_2, in_genome_dir, out_dir]:
             print("\tChecking %s" % f_in)
-            self.assertTrue(os.path.exists(f_in))
+            # self.assertTrue(os.path.exists(f_in))
 
         # Run alignment
-        r = run_star(in_fastq_pair=[in_fastq_1, in_fastq_2],
+        r = rnastar.run_star(in_fastq_pair=[in_fastq_1, in_fastq_2],
                  out_dir=out_dir, in_genome_dir=in_genome_dir,
                  num_threads=num_threads)
 
