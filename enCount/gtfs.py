@@ -2,42 +2,49 @@ import os
 import enCount
 import datetime
 import time
-import hashlib
 from bson.objectid import ObjectId
 from enCount.config import genomes_root
+
+# Externals
+from enCount.externals import rnastar
 
 submitted_gtf_generates = dict(
     (j.meta['genome_index_id'], j) for j in enCount.queues.gtfs.jobs
 )
 
-def _update_dbrec_status(dbrec_id, new_status,):
+def _update_dbrec_status(dbrec_id, new_status):
     """
     Update a database record on a .gtf file.
     """
-    r = enCount.db.mappings.update_one(
-        {'_id': ObjectId(dbrec_id)}, {"$set": {'status': new_status,
-            'out_genome_dir': out_genome_dir}}
+    r = enCount.db.gtfs.update_one(
+        {'_id': ObjectId(dbrec_id)}, {"$set": {'status': new_status}}
     )
-    if not r.acknowledged:
-        print(' problems updating collection mappings record id: {'
-              ':s}'.format(dbrec_id))
+    if r.acknowledged:
+        print("Updated object in collection gtfs: %s with status %s" % (str(dbrec_id), new_status))
+    else:
+        print('Problems updating collection gtfs record id: {0:s}'.format(dbrec_id))
 
 
-def generate_genome_index(in_gtf, in_genome_fasta_dir, dbrec_id):
+def generate_genome_index(in_gtf, in_genome_fasta_dir):
     """
     Generate a genome index using STAR for a given .gtf file.
     """
     gtf_ver = get_version_before(datetime.datetime.utcnow())
     out_genome_dir = enCount.gtfs.get_genome_index_dir(gtf_ver=gtf_ver)
 
-    r = enCount.externals.rnastar.run_star_generate_genome(in_gtf=in_gtf,
+    # Find DB record ID which must exist prior to method call
+    mappings = list(enCount.db.gtfs.find({"gtf_ver": gtf_ver}))
+    assert len(mappings) == 1
+    dbrec_id = mappings[0]["_id"]
+
+    r = rnastar.run_star_generate_genome(in_gtf=in_gtf,
                                  in_genome_fasta_dir=in_genome_fasta_dir,
                                  out_genome_dir=out_genome_dir,
                                  num_threads=enCount.config.NUM_THREADS)
     if r == 0:
-        _update_dbrec_status(dbrec_id, 'ready', gtf_ver)
+        _update_dbrec_status(dbrec_id, 'ready')
     else:
-        _update_dbrec_status(dbrec_id, 'error', gtf_ver)
+        _update_dbrec_status(dbrec_id, 'error')
     return
 
 
@@ -62,7 +69,8 @@ def get_genome_index_dir(gtf_ver):
         # fetch record from DB
         mapping = mappings[0]
         if mapping['status'] == 'ready':
-            return mapping['']
+            # genome index exists
+            return mapping['out_genome_dir']
         else:
             # not ready
             return
@@ -96,10 +104,9 @@ def get_genome_index_dir(gtf_ver):
         print('adding new record to gtfs collection: {:s}'.format(
             str(new_rec)))
         enCount.db.gtfs.insert_one(new_rec)
-        # not ready
+        # not ready yet
         return abs_folder
     return
-
 
 
 def process():
