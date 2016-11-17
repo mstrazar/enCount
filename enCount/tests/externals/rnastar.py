@@ -12,6 +12,16 @@ rnastar.sp_call = Mock(return_value=0)
 
 class TestRNASTAR(unittest.TestCase):
 
+    genome_lengths = {
+        "minimal": 16571,
+        "initial": 3101804739,
+    }
+
+    genome_refs = {
+        "minimal": 1,
+        "initial": 84,
+    }
+
     def setUp(self):
         self.genome_name = "minimal"
         self.num_threads = multiprocessing.cpu_count()
@@ -32,8 +42,8 @@ class TestRNASTAR(unittest.TestCase):
     def test_genome_parameters(self):
         self.assertTrue(os.path.exists(self.in_genome_fasta_dir))
         ln, refs = rnastar._genome_parameters(self.in_genome_fasta_dir)
-        self.assertEqual(ln, 16571)
-        self.assertEqual(refs, 1)
+        self.assertEqual(ln, self.genome_lengths[self.genome_name])
+        self.assertEqual(refs, self.genome_refs[self.genome_name])
 
 
     def test_rnastar_generate_genome(self):
