@@ -3,3 +3,5 @@ rq
 requests
 pymongo
 mock
+biopython
+coverage
