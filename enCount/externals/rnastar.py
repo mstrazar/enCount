@@ -46,6 +46,9 @@ def run_star_generate_genome(in_gtf, in_genome_fasta_dir, out_genome_dir,
         Generate genome index files in out_genome_dir.
     """
 
+    # Assert path ends with a /
+    if out_genome_dir.endswith("/"): out_genome_dir += "/"
+
     tmp_dir = os.path.join(out_genome_dir, "STARtmp")
 
     # Calculate parameters based on genome length
@@ -100,6 +103,8 @@ def run_star(in_fastq_pair, in_genome_dir, out_dir, num_threads=4,
     assert len(in_fastq_pair) == 2
     assert in_fastq_pair[0].endswith(".fastq.gz") or in_fastq_pair[0].endswith(".fastq")
     assert in_fastq_pair[1].endswith(".fastq.gz") or in_fastq_pair[1].endswith(".fastq")
+    if not out_dir.endswith("/"): out_dir += "/"
+
 
     # Basic options
     args = [STAR_EXEC,
