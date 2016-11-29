@@ -54,11 +54,14 @@ def run_star_generate_genome(in_gtf, in_genome_fasta_dir, out_genome_dir,
     genomeChrBinNbits = int(min(18, log(ln/refs)/log(2)))
 
     args = [STAR_EXEC, "--runThreadN", str(num_threads), "--runMode",
-            "genomeGenerate", "--genomeDir", out_genome_dir, "--sjdbGTFfile",
-            in_gtf, "--sjdbOverhang", str(read_length-1),
+            "genomeGenerate", "--genomeDir", out_genome_dir,
             "--outFileNamePrefix", tmp_dir,
             "--genomeSAindexNbases", str(genomeSAindexNbases),
             "--genomeChrBinNbits", str(genomeChrBinNbits)]
+
+    # Genomes with no junctions do not require GTFs
+    if in_gtf is not None:
+        args.extend(["--sjdbGTFfile", in_gtf, "--sjdbOverhang", str(read_length-1),])
 
     args.append("--genomeFastaFiles")
     for f in glob.glob(os.path.join(in_genome_fasta_dir, "*.fa")):

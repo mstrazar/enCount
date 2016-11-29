@@ -26,8 +26,10 @@ class TestRNASTAR(unittest.TestCase):
         self.genome_name = "minimal"
         self.num_threads = multiprocessing.cpu_count()
         self.in_genome_fasta_dir = os.path.join(genomes_root, "fasta", self.genome_name)
-        self.in_gtf = os.path.join(genomes_root, "gtf", "%s.gtf" % self.genome_name)
         self.out_genome_dir = os.path.join(genomes_root, "index", self.genome_name)
+
+        self.in_gtf = os.path.join(genomes_root, "gtf", "%s.gtf" % self.genome_name)
+        if not os.path.exists(self.in_gtf): self.in_gtf = None
 
         self.in_fastq_1 = os.path.join(data_root, "fastq", "MINIMAL", "ENCFF624OCC_FILTERED.fastq.gz")
         self.in_fastq_2 = os.path.join(data_root, "fastq", "MINIMAL", "ENCFF604UQO_FILTERED.fastq.gz")
@@ -51,7 +53,7 @@ class TestRNASTAR(unittest.TestCase):
         print("Working directory", os.getcwd())
 
         # Check input files
-        for f_in in [self.in_genome_fasta_dir, self.in_gtf]:
+        for f_in in [self.in_genome_fasta_dir]:
             print("\tChecking %s" % f_in)
             self.assertTrue(os.path.exists(f_in))
 
