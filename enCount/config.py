@@ -30,6 +30,7 @@ QORTS_R = os.path.join(_config_root, "externals", "libs", "QoRTs.R")
 JUNCTIONSEQ_R = os.path.join(_config_root, "externals", "libs", "JunctionSeq.R")
 
 # STAR aligner
+RSCRIPT = "/usr/bin/Rscript"
 STAR_EXEC = "/home/enuser/bin/STAR"
 NUM_THREADS = 4
 

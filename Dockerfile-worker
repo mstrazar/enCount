@@ -23,7 +23,8 @@ RUN apt-get install -y \
     python3-setuptools \
     python-virtualenv \
     python-pip \
-    git
+    git \
+    r-base
 
 RUN apt-get autoclean -y && \
     apt-get autoremove -y

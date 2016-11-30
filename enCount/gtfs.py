@@ -2,42 +2,51 @@ import os
 import enCount
 import datetime
 import time
-import hashlib
 from bson.objectid import ObjectId
 from enCount.config import genomes_root
+import sys
+
+# Externals
+from enCount.externals import rnastar
 
 submitted_gtf_generates = dict(
     (j.meta['genome_index_id'], j) for j in enCount.queues.gtfs.jobs
 )
 
-def _update_dbrec_status(dbrec_id, new_status,):
+def _update_dbrec_status(dbrec_id, new_status):
     """
     Update a database record on a .gtf file.
     """
-    r = enCount.db.mappings.update_one(
-        {'_id': ObjectId(dbrec_id)}, {"$set": {'status': new_status,
-            'out_genome_dir': out_genome_dir}}
+    r = enCount.db.gtfs.update_one(
+        {'_id': ObjectId(dbrec_id)}, {"$set": {'status': new_status}}
     )
-    if not r.acknowledged:
-        print(' problems updating collection mappings record id: {'
-              ':s}'.format(dbrec_id))
+    if r.acknowledged:
+        print("Updated object in collection gtfs: %s with status %s" % (str(dbrec_id), new_status))
+    else:
+        print('Problems updating collection gtfs record id: {0:s}'.format(dbrec_id))
 
 
-def generate_genome_index(in_gtf, in_genome_fasta_dir, dbrec_id):
+def generate_genome_index(in_gtf, in_genome_fasta_dir, out_genome_dir, mock=False):
     """
     Generate a genome index using STAR for a given .gtf file.
     """
-    gtf_ver = get_version_before(datetime.datetime.utcnow())
-    out_genome_dir = enCount.gtfs.get_genome_index_dir(gtf_ver=gtf_ver)
+    # Find DB record ID which must exist prior to method call
+    mappings = list(enCount.db.gtfs.find({"in_gtf": in_gtf}))
+    assert len(mappings) == 1
+    dbrec_id = mappings[0]["_id"]
 
-    r = enCount.externals.rnastar.run_star_generate_genome(in_gtf=in_gtf,
+    if mock:
+        r = 0
+    else:
+        r = rnastar.run_star_generate_genome(in_gtf=in_gtf,
                                  in_genome_fasta_dir=in_genome_fasta_dir,
                                  out_genome_dir=out_genome_dir,
                                  num_threads=enCount.config.NUM_THREADS)
+
     if r == 0:
-        _update_dbrec_status(dbrec_id, 'ready', gtf_ver)
+        _update_dbrec_status(dbrec_id, 'ready')
     else:
-        _update_dbrec_status(dbrec_id, 'error', gtf_ver)
+        _update_dbrec_status(dbrec_id, 'error')
     return
 
 
@@ -62,7 +71,8 @@ def get_genome_index_dir(gtf_ver):
         # fetch record from DB
         mapping = mappings[0]
         if mapping['status'] == 'ready':
-            return mapping['']
+            # genome index exists
+            return mapping['out_genome_dir']
         else:
             # not ready
             return
@@ -79,7 +89,7 @@ def get_genome_index_dir(gtf_ver):
         if not os.path.isdir(abs_folder):
             try:
                 os.makedirs(abs_folder)
-            except:
+            except OSError:
                 print('Error, could not create genome index folder: '
                       '{:s}'.format(abs_folder))
                 print(' genome index {:s} will not be '
@@ -96,29 +106,27 @@ def get_genome_index_dir(gtf_ver):
         print('adding new record to gtfs collection: {:s}'.format(
             str(new_rec)))
         enCount.db.gtfs.insert_one(new_rec)
-        # not ready
+        # not ready yet
         return abs_folder
     return
 
 
-
-def process():
+def process(mock=False):
     """Synchronizes database and queue of current mappings jobs."""
     global submitted_gtf_generates
+
     # query DB to get all records that have status 'to generate'
     for e in enCount.db.gtfs.find({'status': 'to generate'}):
         genome_index_id = str(e['_id'])
-        gtf_ver = e['gtf_ver']
         out_genome_dir = e['out_genome_dir']
         in_gtf = e['in_gtf']
 
-
         # enqueue new gtf generates to process
+        # TODO: Mocking does not apply here because the method is run in a different container
         if genome_index_id not in submitted_gtf_generates:
-
             job = enCount.queues.gtfs.enqueue_call(
                 enCount.gtfs.generate_genome_index,
-                args=(in_gtf, enCount.config.genome_fasta_root, out_genome_dir),
+                args=(in_gtf, enCount.config.genome_fasta_root, out_genome_dir, mock),
                 result_ttl=-1, ttl=-1, timeout=-1,
             )
             job.meta['genome_index_id'] = genome_index_id
@@ -130,32 +138,3 @@ def process():
         if job.is_finished or job.is_failed:
             job.cleanup()
             enCount.queues.gtfs.remove(job)
-
-if __name__ == "__main__":
-    # Get initial, minimal version
-    gtf_ver = get_version_before(datetime.datetime.min)
-    assert os.path.exists(os.path.join(genomes_root, "gtf", "%s.gtf" % gtf_ver))
-
-    # Create new genome index directory
-    get_genome_index_dir(gtf_ver)
-    assert os.path.isdir(os.path.join(genomes_root, "index", "initial"))
-
-    print("Initial queue status")
-    enCount.queues.gtfs.empty()
-    enCount.queues.print_stats()
-
-    # Run process loop
-    process()
-
-    is_finished = False
-    while not is_finished:
-        time.sleep(5)
-        print("Waiting for genome index generation to finish")
-        enCount.queues.print_stats()
-        is_finished = enCount.queues.gtfs.is_empty()
-        print()
-
-    # Assert results exist
-    outdir = get_genome_index_dir(gtf_ver)
-    assert outdir is not None
-    assert os.path.exists(os.path.join(outdir, "genomeParameters.txt"))

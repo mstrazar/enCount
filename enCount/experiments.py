@@ -61,6 +61,17 @@ def add_latest_set(experiments, gtf_ver=None, time_stamp=None):
 
 
 def _get_fastq_files_for_samples(files_recs):
+    """
+
+    :param files_recs:
+        List of file records retrieved from ENCODE.
+        Each record is a line in a metadata file.
+    :return:
+        A dictionary of biological/technical replicates and associated records.
+        Maps samples to fasta files.
+    """
+    # TODO: add info on related control files
+
     pairings = {}
     for r in files_recs:
         if r['File format'] == 'fastq':
@@ -79,15 +90,18 @@ def _get_fastq_files_for_samples(files_recs):
             # determine pairing and check consistency
             if p_end == '1':
                 k1 = f_acc
-                ri = 10
+                ri = 10         # first mate in pair ; index by file accession
             elif p_end == '2':
                 k1 = p_acc
-                ri = 11
+                ri = 11         # second mate in pair ; index by the file in pair
             else:
                 k1 = f_acc
-                ri = 0
+                ri = 0          # no pairing ; index by file accession
+
+            # insert into dictionary indexed by
             pairings.setdefault((b_rep, t_rep), {}). \
                      setdefault(k1, []).append((ri, rec))
+
 
     # sort paired fastqs
     retd = {}

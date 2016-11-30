@@ -1,11 +1,11 @@
 # coding=utf-8
-import subprocess
 import enCount.config
 import csv
 import glob
 import os
 
-
+from subprocess import call as sp_call
+OPEN = open
 
 # FILE STRUCTURE CONSTANTS
 EXPERIMENT_ACCESSION = "Experiment accession"
@@ -58,8 +58,8 @@ def generate_decoders(in_metafile, control_dir, out_dir):
     header_byuid    = ["sample.ID", "lane.ID", "unique.ID", "qc.data.dir",
                         "group.ID",
                       ]
-    out_bysample_main    = open(os.path.join(out_dir, "decoder.bySample.txt"), "wt")
-    out_byuid_main       = open(os.path.join(out_dir, "decoder.byUID.txt"), "wt")
+    out_bysample_main    = OPEN(os.path.join(out_dir, "decoder.bySample.txt"), "wt")
+    out_byuid_main       = OPEN(os.path.join(out_dir, "decoder.byUID.txt"), "wt")
     writer_bysample_main = csv.DictWriter(out_bysample_main, delimiter="\t",
                                      fieldnames=header_bysample)
     writer_byuid_main    = csv.DictWriter(out_byuid_main, delimiter="\t",
@@ -68,7 +68,7 @@ def generate_decoders(in_metafile, control_dir, out_dir):
     writer_byuid_main.writeheader()
 
     # Read unique set of experiment ids
-    reader_main = csv.DictReader(open(in_metafile), delimiter="\t")
+    reader_main = csv.DictReader(OPEN(in_metafile), delimiter="\t")
     experiments = set([row[EXPERIMENT_ACCESSION] for row in reader_main if
                     row[EXPERIMENT_TARGET] != CONTROLID])
 
@@ -79,7 +79,7 @@ def generate_decoders(in_metafile, control_dir, out_dir):
         for f in glob.glob(os.path.join(control_dir, "*")):
             cid = os.path.basename(f).split(".")[0]
 
-            reader = csv.DictReader(open(f), delimiter="\t")
+            reader = csv.DictReader(OPEN(f), delimiter="\t")
             experiments = set([row[EXPERIMENT_ACCESSION] for row in reader])
             if experiment_id in experiments:
                 cid_result = cid
@@ -93,8 +93,8 @@ def generate_decoders(in_metafile, control_dir, out_dir):
         print("Generating experimental design %s %s" % (experiment_id, out_dir_exp))
 
         # Create a JunctionSeq decoder bySample file for a given experiment ID
-        out_bysample = open(os.path.join(out_dir_exp, "decoder.bySample.txt"), "wt")
-        out_byuid = open(os.path.join(out_dir_exp, "decoder.byUID.txt"), "wt")
+        out_bysample = OPEN(os.path.join(out_dir_exp, "decoder.bySample.txt"), "wt")
+        out_byuid = OPEN(os.path.join(out_dir_exp, "decoder.byUID.txt"), "wt")
 
         writer_bysample = csv.DictWriter(out_bysample, delimiter="\t",
                                          fieldnames=header_bysample)
@@ -106,7 +106,7 @@ def generate_decoders(in_metafile, control_dir, out_dir):
 
 
         main_sample_ids = set() # Ensure unique rows of decoder by sample
-        reader = csv.DictReader(open(in_metafile), delimiter="\t")
+        reader = csv.DictReader(OPEN(in_metafile), delimiter="\t")
         for row in sorted(list(reader), key=lambda r: r[EXPERIMENT_TARGET] == CONTROLID):
             if row[EXPERIMENT_ACCESSION] == experiment_id or \
                row[EXPERIMENT_ACCESSION] == cid_result:
@@ -159,8 +159,8 @@ def run_QoRTs_count(in_bam, in_gtf, out_dir, test_run=False):
     :result
         Write count.txt file in the output directory.
     """
-    stdout = open(os.path.join(out_dir, "run_QoRTs_count.out.txt"), "w")
-    stderr = open(os.path.join(out_dir, "run_QoRTs_count.err.txt"), "w")
+    stdout = OPEN(os.path.join(out_dir, "run_QoRTs_count.out.txt"), "w")
+    stderr = OPEN(os.path.join(out_dir, "run_QoRTs_count.err.txt"), "w")
 
     args = ["java", "-jar", enCount.config.QORTS_JAR,
             "QC", "--stranded",]
@@ -169,7 +169,7 @@ def run_QoRTs_count(in_bam, in_gtf, out_dir, test_run=False):
     args = args + [in_bam, in_gtf, out_dir]
 
     print(" ".join(args))
-    return subprocess.call(args, stdout=stdout, stderr=stderr)
+    return sp_call(args, stdout=stdout, stderr=stderr)
 
 
 def run_QoRTs_merge_counts(in_dir, in_decoder, out_dir, test_run=False):
@@ -188,13 +188,13 @@ def run_QoRTs_merge_counts(in_dir, in_decoder, out_dir, test_run=False):
         directory.
     """
     std_dir = os.path.dirname(in_decoder)
-    stdout = open(os.path.join(std_dir, "run_QoRTs_merge_counts.out.txt"), "w")
-    stderr = open(os.path.join(std_dir, "run_QoRTs_merge_counts.err.txt"), "w")
+    stdout = OPEN(os.path.join(std_dir, "run_QoRTs_merge_counts.out.txt"), "w")
+    stderr = OPEN(os.path.join(std_dir, "run_QoRTs_merge_counts.err.txt"), "w")
 
     args = ["java", "-jar", enCount.config.QORTS_JAR,
             "mergeAllCounts", in_dir, in_decoder, out_dir]
     print(" ".join(args))
-    return subprocess.call(args, stdout=stdout, stderr=stderr)
+    return sp_call(args, stdout=stdout, stderr=stderr)
 
 
 def run_QoRTs_size_factors(in_dir, in_decoder, out_file):
@@ -207,13 +207,13 @@ def run_QoRTs_size_factors(in_dir, in_decoder, out_file):
         Size factor file to be generated
     """
     stddir = os.path.dirname(out_file)
-    stdout = open(os.path.join(stddir, "run_QoRTs_size_factors.out.txt"), "w")
-    stderr = open(os.path.join(stddir, "run_QoRTs_size_factors.err.txt"), "w")
+    stdout = OPEN(os.path.join(stddir, "run_QoRTs_size_factors.out.txt"), "w")
+    stderr = OPEN(os.path.join(stddir, "run_QoRTs_size_factors.err.txt"), "w")
 
     args = [enCount.config.RSCRIPT, enCount.config.QORTS_R,
             in_dir, in_decoder, out_file]
     print(" ".join(args))
-    return subprocess.call(args, stdout=stdout, stderr=stderr)
+    return sp_call(args, stdout=stdout, stderr=stderr)
 
 
 def run_QoRTs_novel_splices(in_dir, in_gtf, in_size_factors, out_dir,
@@ -236,15 +236,15 @@ def run_QoRTs_novel_splices(in_dir, in_gtf, in_size_factors, out_dir,
         Produce .gff file with novel splice junctions and
         updated count files in the output directory.
     """
-    stdout = open(os.path.join(out_dir, "run_QoRTs_novel_splices.out.txt"), "w")
-    stderr = open(os.path.join(out_dir, "run_QoRTs_novel_splices.err.txt"), "w")
+    stdout = OPEN(os.path.join(out_dir, "run_QoRTs_novel_splices.out.txt"), "w")
+    stderr = OPEN(os.path.join(out_dir, "run_QoRTs_novel_splices.err.txt"), "w")
 
     args = ["java", "-jar", enCount.config.QORTS_JAR, "mergeNovelSplices",
                 "--minCount", str(min_count), "--stranded",
                 in_dir, in_size_factors, in_gtf, out_dir,]
 
     print(" ".join(args))
-    return subprocess.call(args, stdout=stdout, stderr=stderr)
+    return sp_call(args, stdout=stdout, stderr=stderr)
 
 
 def run_JunctionSeq_analysis(in_decoder, in_gff, in_gtf_dir, out_dir):
@@ -264,12 +264,12 @@ def run_JunctionSeq_analysis(in_decoder, in_gff, in_gtf_dir, out_dir):
         output directory.
     """
     stddir = os.path.dirname(in_decoder)
-    stdout = open(os.path.join(stddir,"run_JunctionSeq_analysis.out.txt"), "w")
-    stderr = open(os.path.join(stddir,"run_JunctionSeq_analysis.err.txt"), "w")
+    stdout = OPEN(os.path.join(stddir,"run_JunctionSeq_analysis.out.txt"), "w")
+    stderr = OPEN(os.path.join(stddir,"run_JunctionSeq_analysis.err.txt"), "w")
 
     args = [enCount.config.RSCRIPT, enCount.config.JUNCTIONSEQ_R, in_decoder,
             in_gff, in_gtf_dir, out_dir]
 
     print(" ".join(args))
-    return subprocess.call(args, stdout=stdout, stderr=stderr)
+    return sp_call(args, stdout=stdout, stderr=stderr)
 

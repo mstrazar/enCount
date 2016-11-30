@@ -1,6 +1,7 @@
 import os
 import enCount
 import hashlib
+import datetime
 from bson.objectid import ObjectId
 
 # populate list with currently queued jobs
@@ -15,29 +16,34 @@ def _update_dbrec_status(dbrec_id, new_status, new_bam):
             'out_bam_file': new_bam}}
     )
     if not r.acknowledged:
-        print(' problems updating collection mappings record id: {'
-              ':s}'.format(dbrec_id))
+        print(' problems updating collection mappings record id: {0:s}'.format(dbrec_id))
 
 
 
-def map_fastq(fastq_pair, gtf_ver, out_dir, dbrec_id):
+def map_fastq(fastq_pair, in_genome_dir, out_dir, dbrec_id):
 
-    in_genome_dir = enCount.gtfs.get_genome_index_dir(gtf_ver=gtf_ver)
     enCount.externals.rnastar.run_star(
         in_genome_dir=in_genome_dir,
-        in_fastq=fastq_pair,
+        in_fastq_pair=fastq_pair,
         out_dir=out_dir,
-    )
+        num_threads=enCount.config.NUM_THREADS)
 
     new_bam = os.path.join(out_dir, "Aligned.sortedByCoord.out.bam")
-    if os.path.exists(new_bam):
+    log_final = os.path.join(out_dir, "Log.final.out")
+
+    if os.path.exists(log_final):
         _update_dbrec_status(dbrec_id, 'ready', new_bam)
     else:
         _update_dbrec_status(dbrec_id, 'error', new_bam)
     return
 
+def get_mapping_id(fastq_pair, gtf_ver):
+    # create a mapping ID tied to fastq_pair and .gtf version
+    base_str = "%s.%s" % (fastq_pair, gtf_ver)
+    return hashlib.md5(str(base_str).encode("utf-8")).hexdigest()
 
-def get_bam_file_path(fastq_pair, gtf_ver):
+
+def get_bam_file_paths(fastq_pair, gtf_ver):
 
     """Return path to file or None if file not available."""
     # query DB
@@ -51,18 +57,25 @@ def get_bam_file_path(fastq_pair, gtf_ver):
         # fetch record from DB
         mapping = mappings[0]
         if mapping['status'] == 'ready':
-            return mapping['bam_file_path']
+            return mapping['out_dir']
         else:
             # not ready
-            return
+            return None
     else:
-        bname   = hashlib.md5(str(fastq_pair)).hexdigest()
-        out_dir = os.path.join(enCount.config.mappings_root, gtf_ver, bname)
+        # Create a new mapping directory
+        map_id   = get_mapping_id(fastq_pair, gtf_ver)
+        out_dir = os.path.join(enCount.config.mappings_root, gtf_ver, map_id)
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
 
+        # Check for genome index directory
+        gtf_index = enCount.gtfs.get_genome_index_dir(gtf_ver)
+        if gtf_index is None:
+            # not ready, not inserted
+            return None
+
         time_stamp = datetime.datetime.utcnow()
-        new_rec = {'fastq_pair': fastq_pair, 'gtf_ver': gtf_ver,
+        new_rec = {'fastq_pair': fastq_pair, 'gtf_ver': gtf_ver, 'gtf_index': gtf_index,
                    'status': 'to map', 'time_stamp': time_stamp,
                    'out_dir': out_dir,
         }
@@ -70,10 +83,7 @@ def get_bam_file_path(fastq_pair, gtf_ver):
             str(new_rec)))
         enCount.db.mappings.insert_one(new_rec)
         # not ready
-        return
-
-
-    return
+        return None
 
 
 def process():
@@ -81,40 +91,21 @@ def process():
     global submitted_mappings
     # query DB to get all records that have status 'to map'
     for e in enCount.db.mappings.find({'status': 'to map'}):
-        mapping_id = str(e['_id'])
-        fastqs = e['fastqs']
-        gtf_ver = e['gtf_ver']
-        outbam_fname = e['outbam_fname']
+        dbrec_id = str(e['_id'])
+        fastq_pair = e['fastq_pair']
+        gtf_index = e['gtf_index']
+        out_dir = e['out_dir']
 
         # queue new mappings to process
-        if mapping_id not in submitted_mappings:
-            e_acc = e['e_acc']
-
-            # make sure folder exists before download starts
-            rel_folder = os.path.join("mappings", gtf_ver)
-            abs_folder = os.path.join(enCount.config.results_root, rel_folder)
-            outbam_fname = \
-                os.path.join(rel_folder, '{:s}.bam'.format(mapping_id))
-
-            if not os.path.isdir(abs_folder):
-                try:
-                    os.makedirs(abs_folder)
-                except:
-                    print('Error, could not create mapping folder: '
-                          '{:s}'.format(abs_folder))
-                    print(' file {:s} will not be '
-                          'generated.'.format(outbam_fname))
-                    # error, will not be ready
-                    return
-
-            job = enCount.queues.enqueue_call(
+        if dbrec_id not in submitted_mappings:
+            job = enCount.queues.mappings.enqueue_call(
                 enCount.mappings.map_fastq,
-                args=(fastqs, gtf_ver, outbam_fname),
+                args=(fastq_pair, gtf_index, out_dir, dbrec_id),
                 result_ttl=-1, ttl=-1, timeout=-1,
             )
-            job.meta['mapping_id'] = mapping_id
+            job.meta['mapping_id'] = dbrec_id
             job.save()
-            submitted_mappings[mapping_id] = job
+            submitted_mappings[dbrec_id] = job
 
     # clean queue for finished mappings
     for job in enCount.queues.mappings.jobs:
