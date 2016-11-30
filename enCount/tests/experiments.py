@@ -7,7 +7,7 @@ import unittest
 
 
 from mock import Mock
-encode.get_online_list = Mock(return_value=ex_mock.experiments_sample_dict)
+encode.get_online_list = Mock(return_value=ex_mock.online_experiments)
 
 class TestExperiments(unittest.TestCase):
 
@@ -19,7 +19,7 @@ class TestExperiments(unittest.TestCase):
     def test_process(self):
         # Fetch list of online experiments, store into database and enqueue for download
         online_experiments = encode.get_online_list()
-        self.assertTrue(len(online_experiments) == 1)
+        self.assertTrue(len(online_experiments) > 0)
         gtf_ver = experiments.add_latest_set(online_experiments)
         self.assertTrue(gtf_ver is not None)
         experiments.process()
