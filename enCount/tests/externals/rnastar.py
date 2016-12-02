@@ -3,7 +3,6 @@ import os
 from enCount.config import data_root, genomes_root, results_root
 
 import unittest
-import shutil
 import multiprocessing
 
 from mock import Mock
@@ -57,12 +56,6 @@ class TestRNASTAR(unittest.TestCase):
             print("\tChecking %s" % f_in)
             self.assertTrue(os.path.exists(f_in))
 
-        # Empty existing index directory
-        if os.path.exists(self.out_genome_dir):
-            print("Clearing %s" % self.out_genome_dir)
-            shutil.rmtree(self.out_genome_dir)
-            os.makedirs(self.out_genome_dir)
-
         # Generate genome
         r = rnastar.run_star_generate_genome(in_gtf=self.in_gtf,
                                      in_genome_fasta_dir=self.in_genome_fasta_dir,
@@ -82,18 +75,18 @@ class TestRNASTAR(unittest.TestCase):
             print("\tChecking %s" % f_in)
             self.assertTrue(os.path.exists(f_in))
 
-        # Empty directory if already existing
-        if os.path.exists(self.out_mapping_dir):
-            print("Clearing %s" % self.out_mapping_dir)
-            shutil.rmtree(self.out_mapping_dir)
-            os.makedirs(self.out_mapping_dir)
-
         # Run alignment
         r = rnastar.run_star(in_fastq_pair=[self.in_fastq_1, self.in_fastq_2],
                  out_dir=self.out_mapping_dir, in_genome_dir=self.out_genome_dir,
                  num_threads=self.num_threads)
 
         self.assertEqual(r, 0)
+
+        # Test read count after mapping if not mocked
+        if not isinstance(rnastar.sp_call, Mock):
+            count = rnastar.get_read_count(self.out_mapping_dir)
+            print("Number of counted reads: %d" % count)
+            self.assertEqual(count, 1000)
 
 if __name__ == "__main__":
     unittest.main()

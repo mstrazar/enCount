@@ -25,6 +25,21 @@ def _genome_parameters(in_genome_fasta_dir):
     return genome_len, genome_pars
 
 
+def get_read_count(in_bam_dir):
+    """
+    Extract read count from Log file.
+    Required for downstream analysis (JunctionSeq)
+    :param in_bam_dir:
+        Result directory produced by STAR containing Log.final.out
+    :return:
+        Number of mapped reads
+    """
+    in_log = os.path.join(in_bam_dir, "Log.final.out")
+    token = "Number of input reads"
+    line = next(filter(lambda l: token in l, open(in_log).readlines()))
+    return int(line.split("|")[1].strip())
+
+
 def run_star_generate_genome(in_gtf, in_genome_fasta_dir, out_genome_dir,
                              read_length=100, num_threads=4):
     """
