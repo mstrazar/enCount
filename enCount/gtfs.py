@@ -1,10 +1,8 @@
 import os
 import enCount
 import datetime
-import time
 from bson.objectid import ObjectId
 from enCount.config import genomes_root
-import sys
 
 # Externals
 from enCount.externals import rnastar
@@ -12,6 +10,8 @@ from enCount.externals import rnastar
 submitted_gtf_generates = dict(
     (j.meta['genome_index_id'], j) for j in enCount.queues.gtfs.jobs
 )
+
+
 
 def _update_dbrec_status(dbrec_id, new_status):
     """
@@ -53,6 +53,16 @@ def generate_genome_index(in_gtf, in_genome_fasta_dir, out_genome_dir, mock=Fals
 def get_version_before(time_stamp):
     return 'initial'
 
+
+def version_to_path(gtf_ver):
+    """
+    Gtf version to file path.
+    :param gtf_ver:
+        Gtf version ID.
+    :return:
+        Path to .gtf file.
+    """
+    return os.path.join(genomes_root, "gtf", "%s.gtf" % gtf_ver)
 
 def get_genome_index_dir(gtf_ver):
     """
