@@ -3,10 +3,12 @@ import enCount
 import hashlib
 import datetime
 from bson.objectid import ObjectId
+import sys
 
 
 # Constantly named files
 STAR_BAM_NAME = "Aligned.sortedByCoord.out.bam"
+STAR_BAM_LOG = "Log.final.out"
 QORTS_COUNT_NAME = "QC.spliceJunctionCounts.knownSplices.txt.gz"
 
 # populate list with currently queued jobs
@@ -23,9 +25,9 @@ def _update_dbrec_status(dbrec_id, new_status, new_bam=None, read_count=None):
     :param new_bam: Optionally, new BAM file .
     :param read_count: Optionally fastq read count.
     """
-    row = {'status': new_status, 'read_count': read_count}
-    if new_bam is not None: row['out_bam_file'] = new_bam
-    if read_count is not None: row["read_count"] = read_count
+    row = {'status': new_status}
+    if new_status == "to count": row['out_bam_file'] = new_bam
+    if new_status == "to count": row["read_count"] = read_count
 
     r = enCount.db.mappings.update_one({'_id': ObjectId(dbrec_id)}, {"$set": row})
     if not r.acknowledged:
@@ -41,8 +43,8 @@ def map_fastq(fastq_pair, in_genome_dir, out_dir, dbrec_id):
         out_dir=out_dir,
         num_threads=enCount.config.NUM_THREADS)
 
-    new_bam = os.path.join(out_dir, "Aligned.sortedByCoord.out.bam")
-    log_final = os.path.join(out_dir, "Log.final.out")
+    new_bam = os.path.join(out_dir, STAR_BAM_NAME)
+    log_final = os.path.join(out_dir, STAR_BAM_LOG)
     read_count = enCount.externals.rnastar.get_read_count(out_dir)
 
     if os.path.exists(log_final):
