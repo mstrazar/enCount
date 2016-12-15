@@ -37,8 +37,8 @@ class TestMappings(unittest.TestCase):
 
     def setUp(self):
         db.mappings.drop()
-        self.in_fastq_1 = os.path.join(data_root, "fastq", "MINIMAL", "ENCFF624OCC_FILTERED.fastq.gz")
-        self.in_fastq_2 = os.path.join(data_root, "fastq", "MINIMAL", "ENCFF604UQO_FILTERED.fastq.gz")
+        self.in_fastq_1 = os.path.join(data_root, "fastq", "MINIMAL", "ENCFF624OCC.fastq.gz")
+        self.in_fastq_2 = os.path.join(data_root, "fastq", "MINIMAL", "ENCFF604UQO.fastq.gz")
         self.fastq_pair = (self.in_fastq_1, self.in_fastq_2)
         self.out_mapping_dir = os.path.join(mappings_root, "MINIMAL/")
         self.out_count_dir = os.path.join(counts_root, "MINIMAL/")
