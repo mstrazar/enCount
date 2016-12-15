@@ -9,6 +9,7 @@ genomes_root = os.path.join('/endata/genomes')
 results_root = os.path.join('/endata/results')
 
 mappings_root = os.path.join(results_root, "mappings")
+counts_root = os.path.join(results_root, "counts")
 
 tmp_root = '/tmp/enCount'
 data_debug_root = os.path.join(tmp_root, 'debug')
