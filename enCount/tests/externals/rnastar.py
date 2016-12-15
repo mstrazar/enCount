@@ -1,5 +1,6 @@
 # coding=utf-8
 import os
+import shutil
 from enCount.config import data_root, genomes_root, results_root
 
 import unittest
@@ -30,13 +31,15 @@ class TestRNASTAR(unittest.TestCase):
         self.in_gtf = os.path.join(genomes_root, "gtf", "%s.gtf" % self.genome_name)
         if not os.path.exists(self.in_gtf): self.in_gtf = None
 
-        self.in_fastq_1 = os.path.join(data_root, "fastq", "MINIMAL", "ENCFF624OCC_FILTERED.fastq.gz")
-        self.in_fastq_2 = os.path.join(data_root, "fastq", "MINIMAL", "ENCFF604UQO_FILTERED.fastq.gz")
+        self.in_fastq_1 = os.path.join(data_root, "fastq", "MINIMAL", "ENCFF624OCC.fastq.gz")
+        self.in_fastq_2 = os.path.join(data_root, "fastq", "MINIMAL", "ENCFF604UQO.fastq.gz")
 
         self.out_mapping_dir = os.path.join(results_root, "mappings", "MINIMAL/")
 
         for d in [self.out_genome_dir, self.out_mapping_dir]:
-            if not os.path.exists(d):
+            if os.path.exists(d) and not isinstance(rnastar.sp_call, Mock):
+                print("Removing %s" % d)
+                shutil.rmtree(d)
                 os.makedirs(d)
 
 
@@ -47,8 +50,13 @@ class TestRNASTAR(unittest.TestCase):
         self.assertEqual(refs, self.genome_refs[self.genome_name])
 
 
-    def test_rnastar_generate_genome(self):
 
+    def test_rnastar_generate_align(self):
+        """
+        Testing the STAR aligner pipeline inside a container.
+        """
+
+        # STEP 1: Generate genome
         print("Working directory", os.getcwd())
 
         # Check input files
@@ -56,21 +64,15 @@ class TestRNASTAR(unittest.TestCase):
             print("\tChecking %s" % f_in)
             self.assertTrue(os.path.exists(f_in))
 
-        # Generate genome
-        r = rnastar.run_star_generate_genome(in_gtf=self.in_gtf,
-                                     in_genome_fasta_dir=self.in_genome_fasta_dir,
-                                     out_genome_dir=self.out_genome_dir,
-                                     num_threads=self.num_threads)
+        # Generate genome ; skip gtf for th minimal example with no junctions;
+        r = rnastar.run_star_generate_genome(in_gtf=None,
+                                             in_genome_fasta_dir=self.in_genome_fasta_dir,
+                                             out_genome_dir=self.out_genome_dir,
+                                             num_threads=self.num_threads)
         self.assertEqual(r, 0)
 
 
-
-    def test_rnastar_align(self):
-        """
-        Testing the STAR aligner pipeline inside a container.
-        """
-        print("Working directory", os.getcwd())
-
+        # STEP 2: Align reads
         for f_in in [self.in_fastq_1, self.in_fastq_2, self.out_genome_dir, self.out_mapping_dir]:
             print("\tChecking %s" % f_in)
             self.assertTrue(os.path.exists(f_in))
