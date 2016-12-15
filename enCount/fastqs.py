@@ -103,7 +103,7 @@ def get_file_path(e_acc, f_acc, f_url, f_size, f_md5):
             return
     else:
         # add new record into database
-        fname = '{:s}_{:s}_{:d}.fastq.gz'.format(f_acc, f_md5, f_size)
+        fname = '{:s}.fastq.gz'.format(f_acc)
         rel_folder = "{:s}".format(e_acc)
         file_path = os.path.join(rel_folder, fname)
 
