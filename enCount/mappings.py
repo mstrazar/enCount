@@ -87,11 +87,11 @@ def get_mapping_data(bam_path, field):
     :param field: Database field.
     :return:
     """
-    mappings = list(enCount.db.mappings.find({'out_dir': bam_path, 'status': "ready"}))
-    if len(mappings) != 1:
-        return None
+    mappings = enCount.db.mappings.find({'out_dir': bam_path, 'status': "ready"})
+    if mappings.count() == 1:
+        return next(mappings)[field]
     else:
-        return mappings[0][field]
+        return None
 
 
 def get_bam_file_paths(fastq_pair, gtf_ver):
@@ -146,7 +146,7 @@ def get_count_file_paths(bam_dir, gtf_ver):
     :return:
     """
     mappings = enCount.db.mappings.find({'out_dir': bam_dir, 'gtf_ver': gtf_ver})
-    if mappings:
+    if mappings.count():
         return next(mappings)["out_count_dir"]
     else:
         return None
