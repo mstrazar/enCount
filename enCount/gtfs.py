@@ -5,7 +5,7 @@ from bson.objectid import ObjectId
 from enCount.config import genomes_root
 
 # Externals
-from enCount.externals import rnastar
+from enCount.externals import rnastar, dexseq
 
 submitted_gtf_generates = dict(
     (j.meta['genome_index_id'], j) for j in enCount.queues.gtfs.jobs
@@ -26,9 +26,21 @@ def _update_dbrec_status(dbrec_id, new_status):
         print('Problems updating collection gtfs record id: {0:s}'.format(dbrec_id))
 
 
-def generate_genome_index(in_gtf, in_genome_fasta_dir, out_genome_dir, mock=False):
+def generate_genome_index(in_gtf, in_genome_fasta_dir, out_genome_dir, out_gff, mock=False):
     """
-    Generate a genome index using STAR for a given .gtf file.
+    Generate a genome index using STAR for a given .gtf file and
+        a .gff annotation (non-overlapping bins).
+    :param in_gtf:
+        Input .gtf file.
+    :param in_genome_fasta_dir:
+        Directory with fasta files containing the genome.
+    :param out_genome_dir:
+        Genome index directory.
+    :param out_gff:
+        Output gff file path.
+    :param mock:
+        Mock external calls (for testing).
+    :return:
     """
     # Find DB record ID which must exist prior to method call
     mappings = list(enCount.db.gtfs.find({"in_gtf": in_gtf}))
@@ -37,13 +49,18 @@ def generate_genome_index(in_gtf, in_genome_fasta_dir, out_genome_dir, mock=Fals
 
     if mock:
         r = 0
+        q = 0
     else:
+
+        # Generate index
         r = rnastar.run_star_generate_genome(in_gtf=in_gtf,
                                  in_genome_fasta_dir=in_genome_fasta_dir,
-                                 out_genome_dir=out_genome_dir,
-                                 num_threads=enCount.config.NUM_THREADS)
+                                 out_genome_dir=out_genome_dir)
 
-    if r == 0:
+        # Generate gff file
+        q = dexseq.gtf_to_gff(in_gtf, out_gff)
+
+    if r == 0 and q == 0:
         _update_dbrec_status(dbrec_id, 'ready')
     else:
         _update_dbrec_status(dbrec_id, 'error')
@@ -54,15 +71,21 @@ def get_version_before(time_stamp):
     return 'initial'
 
 
-def version_to_path(gtf_ver):
+def version_to_path(gtf_ver, gff=False):
     """
-    Gtf version to file path.
+    Gtf/Gff version to file path.
     :param gtf_ver:
         Gtf version ID.
+    :param gff:
+        Return gff or gtf file.
     :return:
         Path to .gtf file.
     """
-    return os.path.join(genomes_root, "gtf", "%s.gtf" % gtf_ver)
+    if gff:
+        return os.path.join(genomes_root, "gff", "%s.gff" % gtf_ver)
+    else:
+        return os.path.join(genomes_root,  "gtf", "%s.gtf" % gtf_ver)
+
 
 def get_genome_index_dir(gtf_ver):
     """
@@ -89,6 +112,8 @@ def get_genome_index_dir(gtf_ver):
     else:
         # GTF is in format time_stamp.gtf
         in_gtf = os.path.join(genomes_root, "gtf", gtf_ver + ".gtf")
+        in_gff = os.path.join(genomes_root, "gff", gtf_ver + ".gff")
+        in_fasta_dir = os.path.join(genomes_root, "fasta", gtf_ver)
         if not os.path.exists(in_gtf):
             print("Error, {:s} does not exist".format(in_gtf))
             return
@@ -112,6 +137,8 @@ def get_genome_index_dir(gtf_ver):
                    'time_stamp': time_stamp,
                    'out_genome_dir': abs_folder,
                    'in_gtf': in_gtf,
+                   'in_gff': in_gff,
+                   'in_fasta_dir': in_fasta_dir,
         }
         print('adding new record to gtfs collection: {:s}'.format(
             str(new_rec)))
@@ -130,13 +157,15 @@ def process(mock=False):
         genome_index_id = str(e['_id'])
         out_genome_dir = e['out_genome_dir']
         in_gtf = e['in_gtf']
+        in_gff = e['in_gff']
+        in_fasta_dir = e['in_fasta_dir']
 
         # enqueue new gtf generates to process
         # TODO: Mocking does not apply here because the method is run in a different container
         if genome_index_id not in submitted_gtf_generates:
             job = enCount.queues.gtfs.enqueue_call(
                 enCount.gtfs.generate_genome_index,
-                args=(in_gtf, enCount.config.genome_fasta_root, out_genome_dir, mock),
+                args=(in_gtf, in_fasta_dir, out_genome_dir, in_gff, mock),
                 result_ttl=-1, ttl=-1, timeout=-1,
             )
             job.meta['genome_index_id'] = genome_index_id
