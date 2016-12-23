@@ -12,6 +12,8 @@ def gtf_to_gff(in_gtf, out_gff):
     :return:
         External process call status.
     """
-    return sp_call(["/usr/bin/python",
+    args = ["/usr/bin/python",
                     "/home/enuser/.R/DEXSeq/python_scripts/dexseq_prepare_annotation.py",
-                    in_gtf, out_gff])
+                    in_gtf, out_gff]
+    print(" ".join(args))
+    return sp_call(args)
