@@ -24,7 +24,6 @@ class TestRNASTAR(unittest.TestCase):
 
     def setUp(self):
         self.genome_name = "minimal"
-        self.num_threads = multiprocessing.cpu_count()
         self.in_genome_fasta_dir = os.path.join(genomes_root, "fasta", self.genome_name)
         self.out_genome_dir = os.path.join(genomes_root, "index", self.genome_name)
 
@@ -37,9 +36,10 @@ class TestRNASTAR(unittest.TestCase):
         self.out_mapping_dir = os.path.join(results_root, "mappings", "MINIMAL/")
 
         for d in [self.out_genome_dir, self.out_mapping_dir]:
-            if os.path.exists(d) and not isinstance(rnastar.sp_call, Mock):
-                print("Removing %s" % d)
-                shutil.rmtree(d)
+            if not isinstance(rnastar.sp_call, Mock):
+                if os.path.exists(d):
+                    print("Removing %s" % d)
+                    shutil.rmtree(d)
                 os.makedirs(d)
 
 
@@ -67,8 +67,7 @@ class TestRNASTAR(unittest.TestCase):
         # Generate genome ; skip gtf for th minimal example with no junctions;
         r = rnastar.run_star_generate_genome(in_gtf=None,
                                              in_genome_fasta_dir=self.in_genome_fasta_dir,
-                                             out_genome_dir=self.out_genome_dir,
-                                             num_threads=self.num_threads)
+                                             out_genome_dir=self.out_genome_dir)
         self.assertEqual(r, 0)
 
 
@@ -79,8 +78,7 @@ class TestRNASTAR(unittest.TestCase):
 
         # Run alignment
         r = rnastar.run_star(in_fastq_pair=[self.in_fastq_1, self.in_fastq_2],
-                 out_dir=self.out_mapping_dir, in_genome_dir=self.out_genome_dir,
-                 num_threads=self.num_threads)
+                 out_dir=self.out_mapping_dir, in_genome_dir=self.out_genome_dir)
 
         self.assertEqual(r, 0)
 
