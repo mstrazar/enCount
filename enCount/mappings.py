@@ -40,8 +40,7 @@ def map_fastq(fastq_pair, in_genome_dir, out_dir, dbrec_id):
     enCount.externals.rnastar.run_star(
         in_genome_dir=in_genome_dir,
         in_fastq_pair=fastq_pair,
-        out_dir=out_dir,
-        num_threads=enCount.config.NUM_THREADS)
+        out_dir=out_dir,)
 
     new_bam = os.path.join(out_dir, STAR_BAM_NAME)
     log_final = os.path.join(out_dir, STAR_BAM_LOG)
@@ -105,7 +104,8 @@ def get_bam_file_paths(fastq_pair, gtf_ver):
     if mappings:
         # fetch record from DB
         mapping = mappings[0]
-        if mapping['status'] in ('to count', 'ready'):
+        # return path only if completely ready (mapped and counted), so queues are synced
+        if mapping['status'] == 'ready':
             return mapping['out_dir']
         else:
             # not ready
