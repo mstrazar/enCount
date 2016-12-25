@@ -78,6 +78,7 @@ def run_QoRTs_size_factors(in_dir, in_decoder, out_file):
     stddir = os.path.dirname(out_file)
     stdout = OPEN(os.path.join(stddir, "run_QoRTs_size_factors.out.txt"), "w")
     stderr = OPEN(os.path.join(stddir, "run_QoRTs_size_factors.err.txt"), "w")
+    in_dir = "%s/" % in_dir
 
     args = [enCount.config.RSCRIPT, enCount.config.QORTS_R,
             in_dir, in_decoder, out_file]
@@ -107,6 +108,7 @@ def run_QoRTs_novel_splices(in_dir, in_gtf, in_size_factors, out_dir,
     """
     stdout = OPEN(os.path.join(out_dir, "run_QoRTs_novel_splices.out.txt"), "w")
     stderr = OPEN(os.path.join(out_dir, "run_QoRTs_novel_splices.err.txt"), "w")
+    in_dir = "%s/" % in_dir
 
     args = ["java", "-jar", enCount.config.QORTS_JAR, "mergeNovelSplices",
                 "--minCount", str(min_count), "--stranded",
@@ -116,7 +118,7 @@ def run_QoRTs_novel_splices(in_dir, in_gtf, in_size_factors, out_dir,
     return sp_call(args, stdout=stdout, stderr=stderr)
 
 
-def run_JunctionSeq_analysis(in_decoder, in_gff, in_gtf_dir, out_dir):
+def run_JunctionSeq_analysis(in_decoder, in_gff, in_count_dir, out_dir):
     """
     Run the whole JunctionSeq analysis of differential exon *and* splice
     junction usage.
@@ -124,7 +126,7 @@ def run_JunctionSeq_analysis(in_decoder, in_gff, in_gtf_dir, out_dir):
         Decoder file indicating experimental design.
     :param in_gff.
         .gff file (including novel junctions) as produced by QoRTs.
-    :param in_gtf_dir
+    :param in_count_dir
         Directory with count files with naming as in decoder.
     :param out_dir
         Output directory.
@@ -135,9 +137,11 @@ def run_JunctionSeq_analysis(in_decoder, in_gff, in_gtf_dir, out_dir):
     stddir = os.path.dirname(in_decoder)
     stdout = OPEN(os.path.join(stddir,"run_JunctionSeq_analysis.out.txt"), "w")
     stderr = OPEN(os.path.join(stddir,"run_JunctionSeq_analysis.err.txt"), "w")
+    in_count_dir = "%s/" % in_count_dir
+    out_dir = "%s/" % out_dir
 
     args = [enCount.config.RSCRIPT, enCount.config.JUNCTIONSEQ_R, in_decoder,
-            in_gff, in_gtf_dir, out_dir]
+            in_gff, in_count_dir, out_dir]
 
     print(" ".join(args))
     return sp_call(args, stdout=stdout, stderr=stderr)
