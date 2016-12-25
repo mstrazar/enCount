@@ -18,6 +18,10 @@ gtfs.get_version_before = Mock(return_value="minimal")
 
 
 def mock_insert():
+    """
+    Mock insert into db.fastqs and db.gtfs for local testing without download.
+    :return:
+    """
 
     # Mock genome index insert
     db.gtfs.insert_one({'gtf_ver': "minimal", 'status': 'ready',
@@ -76,23 +80,34 @@ class TestExperiments(unittest.TestCase):
 
 
     def setUp(self):
-        # Empty databases prior to start
+        """
+        Empty databases prior to start
+        :return:
+        """
         db.fastqs.drop()
         db.mappings.drop()
         db.experiments.drop()
         db.gtfs.drop()
         mock_insert()
 
-        self.design_dir = os.path.join(config.results_root, "design", "minimal", "MINIMAL")
+        self.e_acc = "MINIMAL"
+        self.gtf_ver = gtfs.get_version_before(datetime.datetime.now())
+        self.design_dir = os.path.join(config.results_root, "junctionseq", self.gtf_ver, self.e_acc)
         self.design_by_sample =  os.path.join(self.design_dir, "decoder.bySample.txt")
         self.design_by_uid = os.path.join(self.design_dir, "decoder.byUID.txt")
 
+        # Design files need to be generated inside the tests
         if os.path.exists(self.design_dir):
+            print("Directory %s exists, removing ..." % self.design_dir)
             shutil.rmtree(self.design_dir)
 
 
+    # TODO: prepare a minimal genome example that contains splices
     def test_process(self):
-        # Fetch list of online experiments, store into database and enqueue for download
+        """
+        Fetch list of online experiments, store into database and enqueue for download
+        :return:
+        """
         online_experiments = encode.get_online_list()
         self.assertTrue(len(online_experiments) > 0)
         gtf_ver = experiments.add_latest_set(online_experiments)
@@ -107,6 +122,21 @@ class TestExperiments(unittest.TestCase):
             print("Current ready mappings: %d" % db.mappings.find({"status": "ready"}).count())
             time.sleep(2)
             i += 1
+
+        i = 0
+        while db.experiments.find({"status": "to process"}).count() > 0:
+            print("\n\n\nQueue experiments call %d" % i)
+            experiments.process()
+            time.sleep(2)
+            i += 1
+
+        print("\nRows in database (mappings) after test")
+        for row in db.mappings.find({"status": "ready"}):
+            print(row)
+
+        print("\nRows in database (experiments) after test")
+        for row in db.experiments.find():
+            print(row)
 
         self.assertTrue(os.path.exists(self.design_by_sample))
         self.assertTrue(os.path.exists(self.design_by_uid))
