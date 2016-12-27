@@ -42,13 +42,6 @@ class TestRNASTAR(unittest.TestCase):
 
         self.out_mapping_dir = os.path.join(results_root, "mappings", self.sample_name)
 
-        for d in [self.out_genome_dir, self.out_mapping_dir]:
-            if not isinstance(rnastar.sp_call, Mock):
-                if os.path.exists(d):
-                    print("Removing %s" % d)
-                    shutil.rmtree(d)
-                os.makedirs(d)
-
 
     def test_genome_parameters(self):
         """
@@ -59,7 +52,6 @@ class TestRNASTAR(unittest.TestCase):
         ln, refs = rnastar._genome_parameters(self.in_genome_fasta_dir)
         self.assertEqual(ln, self.genome_lengths[self.genome_name])
         self.assertEqual(refs, self.genome_refs[self.genome_name])
-
 
 
     def test_rnastar_generate_align(self):
@@ -93,12 +85,6 @@ class TestRNASTAR(unittest.TestCase):
                  out_dir=self.out_mapping_dir, in_genome_dir=self.out_genome_dir)
 
         self.assertEqual(r, 0)
-
-        # Test read count after mapping if not mocked
-        if not isinstance(rnastar.sp_call, Mock):
-            count = rnastar.get_read_count(self.out_mapping_dir)
-            print("Number of counted reads: %d" % count)
-            self.assertEqual(count, self.counts[self.sample_name])
 
 
 if __name__ == "__main__":
