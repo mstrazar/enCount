@@ -11,8 +11,8 @@ import datetime
 import time
 
 from mock import Mock
-gtfs.get_version_before = Mock(return_value="minimal")
-gtfs.get_genome_index_dir = Mock(return_value=os.path.join(config.genomes_root, "index", "minimal"))
+gtfs.get_version_before = Mock(return_value="chM")
+gtfs.get_genome_index_dir = Mock(return_value=os.path.join(config.genomes_root, "index", "chM"))
 
 
 def empty_and_create(in_dir):
@@ -37,11 +37,13 @@ class TestMappings(unittest.TestCase):
 
     def setUp(self):
         db.mappings.drop()
-        self.in_fastq_1 = os.path.join(data_root, "fastq", "MINIMAL", "ENCFF624OCC.fastq.gz")
-        self.in_fastq_2 = os.path.join(data_root, "fastq", "MINIMAL", "ENCFF604UQO.fastq.gz")
+
+        self.sample_name = "SAMP_CHM"
+        self.in_fastq_1 = os.path.join(data_root, "fastq", self.sample_name, "ENCFF624OCC.fastq.gz")
+        self.in_fastq_2 = os.path.join(data_root, "fastq", self.sample_name, "ENCFF604UQO.fastq.gz")
         self.fastq_pair = (self.in_fastq_1, self.in_fastq_2)
-        self.out_mapping_dir = os.path.join(mappings_root, "MINIMAL/")
-        self.out_count_dir = os.path.join(counts_root, "MINIMAL/")
+        self.out_mapping_dir = os.path.join(mappings_root, "%s/" % self.sample_name)
+        self.out_count_dir = os.path.join(counts_root, "%s/" % self.sample_name)
 
 
 

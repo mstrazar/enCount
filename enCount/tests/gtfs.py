@@ -11,8 +11,8 @@ import time
 
 # Mock system calls
 from mock import Mock
-# gtfs.rnastar.sp_call = Mock(return_value=0)
-gtfs.get_version_before = Mock(return_value="minimal")
+gtfs.rnastar.sp_call = Mock(return_value=0)
+gtfs.get_version_before = Mock(return_value="chM")
 
 class TestGtfs(unittest.TestCase):
     """
