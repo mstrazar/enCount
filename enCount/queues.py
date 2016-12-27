@@ -16,6 +16,7 @@ downloads = rq.Queue('downloads', connection=_redis_conn, default_timeout=-1)
 experiments = rq.Queue('experiments', connection=_redis_conn, default_timeout=-1)
 mappings = rq.Queue('mappings', connection=_redis_conn, default_timeout=-1)
 gtfs = rq.Queue('gtfs', connection=_redis_conn, default_timeout=-1)
+junctions = rq.Queue('junctions', connection=_redis_conn, default_timeout=-1)
 failed = rq.get_failed_queue(connection=_redis_conn)
 
 
@@ -40,6 +41,7 @@ def print_stats():
     print(' experiments queue : {:s}'.format(queue_stats(experiments)))
     print(' mappings queue    : {:s}'.format(queue_stats(mappings)))
     print(' gtfs queue        : {:s}'.format(queue_stats(gtfs)))
+    print(' junctions queue   : {:s}'.format(queue_stats(junctions)))
     print(' failed queue      : {:s}'.format(queue_stats(failed)))
 
 print_stats()

@@ -1,7 +1,7 @@
 # coding=utf-8
 import glob
 import os
-from enCount.config import STAR_EXEC
+from enCount.config import STAR_EXEC, RAM_LIMIT, NUM_THREADS
 from subprocess import call as sp_call
 from Bio.SeqIO import parse
 from math import log
@@ -25,8 +25,23 @@ def _genome_parameters(in_genome_fasta_dir):
     return genome_len, genome_pars
 
 
+def get_read_count(in_bam_dir):
+    """
+    Extract read count from Log file.
+    Required for downstream analysis (JunctionSeq)
+    :param in_bam_dir:
+        Result directory produced by STAR containing Log.final.out
+    :return:
+        Number of mapped reads
+    """
+    in_log = os.path.join(in_bam_dir, "Log.final.out")
+    token = "Number of input reads"
+    line = next(filter(lambda l: token in l, open(in_log).readlines()))
+    return int(line.split("|")[1].strip())
+
+
 def run_star_generate_genome(in_gtf, in_genome_fasta_dir, out_genome_dir,
-                             read_length=100, num_threads=4):
+                             read_length=100):
     """
 
     Generate a genome index.
@@ -37,8 +52,6 @@ def run_star_generate_genome(in_gtf, in_genome_fasta_dir, out_genome_dir,
         Directory with genome fasta files.
     :param read_length
         Read length. Suggested parameter by STAR documentation is 100.
-    :param num_threads
-        Number of threads.
     :param out_genome_dir
         Directory for generating genome indices.
 
@@ -56,7 +69,7 @@ def run_star_generate_genome(in_gtf, in_genome_fasta_dir, out_genome_dir,
     genomeSAindexNbases = int(min(14, 0.5 * log(ln)/log(2) - 1))
     genomeChrBinNbits = int(min(18, log(ln/refs)/log(2)))
 
-    args = [STAR_EXEC, "--runThreadN", str(num_threads), "--runMode",
+    args = [STAR_EXEC, "--runThreadN", str(NUM_THREADS), "--runMode",
             "genomeGenerate", "--genomeDir", out_genome_dir,
             "--outFileNamePrefix", tmp_dir,
             "--genomeSAindexNbases", str(genomeSAindexNbases),
@@ -74,8 +87,7 @@ def run_star_generate_genome(in_gtf, in_genome_fasta_dir, out_genome_dir,
     return sp_call(args)
 
 
-def run_star(in_fastq_pair, in_genome_dir, out_dir, num_threads=4,
-             clip3pAdapterSeq="-"):
+def run_star(in_fastq_pair, in_genome_dir, out_dir, clip3pAdapterSeq="-"):
     """
         Run STAR aligner on the in_fastq file.
 
@@ -85,8 +97,6 @@ def run_star(in_fastq_pair, in_genome_dir, out_dir, num_threads=4,
             Input .fastq file pair.
         :param in_genome_dir
             Directory with generated genome indices.
-        :param num_threads
-            Number of threads.
         :param out_dir
             Prefix for the output directory.
 
@@ -110,7 +120,7 @@ def run_star(in_fastq_pair, in_genome_dir, out_dir, num_threads=4,
     args = [STAR_EXEC,
             "--readFilesIn",       in_fastq_pair[0], in_fastq_pair[1],
             "--genomeDir",         in_genome_dir,
-            "--runThreadN",        str(num_threads),
+            "--runThreadN",        str(NUM_THREADS),
             "--outFileNamePrefix", out_dir,
             "--clip3pAdapterSeq",  clip3pAdapterSeq,
             "--outSAMtype", "BAM", "SortedByCoordinate",]
@@ -126,6 +136,10 @@ def run_star(in_fastq_pair, in_genome_dir, out_dir, num_threads=4,
         "--alignIntronMax", "1000000",
         "--alignMatesGapMax", "1000000",
     ]
+
+    # Define local RAM limit
+    if RAM_LIMIT is not None:
+        args += ["--limitBAMsortRAM", str(RAM_LIMIT)]
 
     # Process .gzip
     if in_fastq_pair[0].endswith(".gz"):

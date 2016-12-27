@@ -9,11 +9,10 @@ genomes_root = os.path.join('/endata/genomes')
 results_root = os.path.join('/endata/results')
 
 mappings_root = os.path.join(results_root, "mappings")
+counts_root = os.path.join(results_root, "counts")
 
 tmp_root = '/tmp/enCount'
 data_debug_root = os.path.join(tmp_root, 'debug')
-
-genome_fasta_root = os.path.join(genomes_root, "fasta", "hg19", "Homo_sapiens.GRCh37.75.dna.primary_assembly.fa")
 
 # Redis store
 REDIS_HOSTNAME = 'redis'
@@ -33,6 +32,7 @@ JUNCTIONSEQ_R = os.path.join(_config_root, "externals", "libs", "JunctionSeq.R")
 RSCRIPT = "/usr/bin/Rscript"
 STAR_EXEC = "/home/enuser/bin/STAR"
 NUM_THREADS = 4
+RAM_LIMIT = None
 
 # read (override) from local config
 try:

@@ -3,7 +3,7 @@
 args = commandArgs(TRUE)
 in_decoder   = args[1]   # decoder is the metadata file indicating sample IDs
 in_gff       = args[2]   # input gff file with novel junctions
-in_gtf_dir = args[3]   # input count files directory
+in_count_dir = args[3]   # input count files directory
 out_dir      = args[4]   # Output directory for jscs analysis
 
 
@@ -15,7 +15,7 @@ decoder <- read.table(in_decoder, header=TRUE)
 
 gff.file <- in_gff
 
-countFiles <- paste0(in_gtf_dir, decoder$sample.ID,
+countFiles <- paste0(in_count_dir, decoder$sample.ID,
     "/QC.spliceJunctionAndExonCounts.withNovel.forJunctionSeq.txt.gz")
 
 

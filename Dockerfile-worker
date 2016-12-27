@@ -9,25 +9,47 @@ ENV LANG C.UTF-8
 
 RUN useradd -u 1010 -m -d /home/enuser enuser
 
+# Append repository to get the latest R version
+# Details: https://cloud.r-project.org/bin/linux/ubuntu/
+RUN gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E084DAB9
+RUN gpg -a --export E084DAB9 | sudo apt-key add -
+RUN echo "deb http://cran.rstudio.com/bin/linux/ubuntu trusty/" >> /etc/apt/sources.list
+
 # update system and install prerequisites
 # avoid apt-get upgrade -y
-RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y \
-    wget \
-    g++ \
-    zlib1g-dev \
-    libzmq-dev \
-    make \
-    python3 \
-    python3-pip \
-    python3-setuptools \
-    python-virtualenv \
-    python-pip \
-    git \
-    r-base
+RUN apt-get update
+RUN apt-get install -y wget
+RUN apt-get install -y g++
+RUN apt-get install -y zlib1g-dev
+RUN apt-get install -y libzmq-dev
+RUN apt-get install -y make
+RUN apt-get install -y python3
+RUN apt-get install -y python3-pip
+RUN apt-get install -y python3-setuptools
+RUN apt-get install -y python-virtualenv
+RUN apt-get install -y python-pip
+RUN apt-get install -y git
+RUN apt-get install -y r-base
+RUN apt-get install -y default-jre
+RUN apt-get install -y libxml2-dev
+RUN apt-get install -y libcurl4-openssl-dev
+RUN apt-get install -y build-essential
+RUN apt-get install -y python2.7-dev
+RUN apt-get install -y libfreetype6-dev
 
 RUN apt-get autoclean -y && \
     apt-get autoremove -y
+
+# Default R library location ; must be modified as root
+RUN echo "R_LIBS=/home/enuser/.R" >> /etc/R/Renviron.site
+
+
+##################
+#### Install python2.7 requirements (for DEXSeq)
+RUN pip install numpy
+RUN pip install freetype-py
+RUN pip install matplotlib
+RUN pip install HTSeq
 
 
 #################
@@ -63,4 +85,14 @@ USER enuser
 WORKDIR /home/enuser/enCount
 RUN ../.encountenv/bin/python setup.py develop
 
-CMD ["/home/enuser/.encountenv/bin/rqworker", "--url", "redis://redis", "downloads", "gtfs"]
+
+#################
+### Set up R env
+RUN export R_LIBS=/home/enuser/.R
+RUN mkdir -p /home/enuser/.R
+RUN wget "https://github.com/hartleys/QoRTs/releases/download/v1.1.8/QoRTs_1.1.8.tar.gz"
+RUN Rscript /home/enuser/enCount/install/install.R
+RUN rm QoRTs_1.1.8.tar.gz
+
+
+CMD ["/home/enuser/.encountenv/bin/rqworker", "--url", "redis://redis", "downloads", "gtfs", "mappings", "junctions"]
