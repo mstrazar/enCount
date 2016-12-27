@@ -8,7 +8,7 @@ import os
 
 from mock import Mock
 dexseq.sp_call = Mock(return_value=0)
-gtfs.get_version_before = Mock(return_value="minimal")
+gtfs.get_version_before = Mock(return_value="chM")
 
 class TestDEXSeq(unittest.TestCase):
 
@@ -25,3 +25,5 @@ class TestDEXSeq(unittest.TestCase):
         self.assertTrue(os.path.exists(out_gff))
 
 
+if __name__ == "__main__":
+    unittest.main()
