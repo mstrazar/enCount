@@ -1,20 +1,18 @@
-import enCount.encode as encode
-import enCount.gtfs as gtfs
-import enCount.experiments as experiments
-import enCount.tests.experiments_mock as ex_mock
-import enCount.db as db
-import enCount.config as config
-import enCount.mappings as mappings
+import datetime
+import sys
+import time
 
 import os
 import shutil
-import unittest
-import datetime
-import time
-
 from mock import Mock
-encode.get_online_list = Mock(return_value=ex_mock.online_experiments)
-gtfs.get_version_before = Mock(return_value="chM")
+
+import enCount.config as config
+import enCount.db as db
+import enCount.encode as encode
+import enCount.experiments as experiments
+import enCount.gtfs as gtfs
+import enCount.integration.experiments_mock as ex_mock
+import enCount.mappings as mappings
 
 
 def mock_insert(sample_name="SAMP_CHM", genome_name="chM"):
@@ -24,9 +22,9 @@ def mock_insert(sample_name="SAMP_CHM", genome_name="chM"):
     """
 
     # Mock genome index insert
-    db.gtfs.insert_one({'gtf_ver': "minimal", 'status': 'ready',
+    db.gtfs.insert_one({'gtf_ver': genome_name, 'status': 'ready',
                'time_stamp': datetime.datetime.now(),
-               'out_genome_dir': os.path.join(config.genomes_root, "index", "minimal"),
+               'out_genome_dir': os.path.join(config.genomes_root, "index", genome_name),
                'in_gtf': os.path.join(config.genomes_root, "gtf", "%s.gtf" % genome_name),
                })
 
@@ -76,22 +74,22 @@ def mock_insert(sample_name="SAMP_CHM", genome_name="chM"):
 
 
 
-class TestExperiments(unittest.TestCase):
+class IntExperiments:
 
 
-    def setUp(self):
+    def __init__(self, genome_name="chM", sample_name="SAMP_CHM"):
         """
         Empty databases prior to start
         :return:
         """
-        sample_name = "CHM"
-        genome_name = "SAMP_CHM"
-
         db.fastqs.drop()
         db.mappings.drop()
         db.experiments.drop()
         db.gtfs.drop()
+
         mock_insert(sample_name, genome_name)
+        gtfs.get_version_before = Mock(return_value=genome_name)
+        encode.get_online_list = Mock(return_value=ex_mock.get_online_list(sample_name))
 
         self.e_acc = sample_name
         self.gtf_ver = gtfs.get_version_before(datetime.datetime.now())
@@ -105,16 +103,15 @@ class TestExperiments(unittest.TestCase):
             shutil.rmtree(self.design_dir)
 
 
-    # TODO: prepare a minimal genome example that contains splices
     def test_process(self):
         """
         Fetch list of online experiments, store into database and enqueue for download
         :return:
         """
         online_experiments = encode.get_online_list()
-        self.assertTrue(len(online_experiments) > 0)
+        assert len(online_experiments) > 0
         gtf_ver = experiments.add_latest_set(online_experiments)
-        self.assertTrue(gtf_ver is not None)
+        assert gtf_ver is not None
 
         i = 0
         while db.mappings.find({"status": "ready"}).count() < 4:
@@ -141,5 +138,17 @@ class TestExperiments(unittest.TestCase):
         for row in db.experiments.find():
             print(row)
 
-        self.assertTrue(os.path.exists(self.design_by_sample))
-        self.assertTrue(os.path.exists(self.design_by_uid))
+        assert os.path.exists(self.design_by_sample)
+        assert os.path.exists(self.design_by_uid)
+
+
+if __name__ == "__main__":
+    try:
+        genome_name = sys.argv[1]
+        sample_name = sys.argv[2]
+        test = IntExperiments(sample_name=sample_name, genome_name=genome_name)
+    except IndexError:
+        print("Genome and sample names not provided, defaulting to chM.")
+        test = IntExperiments()
+
+    test.test_process()

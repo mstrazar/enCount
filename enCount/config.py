@@ -34,6 +34,10 @@ STAR_EXEC = "/home/enuser/bin/STAR"
 NUM_THREADS = 4
 RAM_LIMIT = None
 
+# DEXSEQ requirements
+PYTHON2_EXEC = "/usr/bin/python"
+DEXSEQ_PREP_ANNOTATION = "/home/enuser/.R/DEXSeq/python_scripts/dexseq_prepare_annotation.py"
+
 # read (override) from local config
 try:
     from .myconfig import *

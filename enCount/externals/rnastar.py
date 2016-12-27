@@ -19,9 +19,11 @@ def _genome_parameters(in_genome_fasta_dir):
     genome_len = 0
     genome_pars = 0
     for fasta in glob.glob(os.path.join(in_genome_fasta_dir, "*.fa")):
-        for record in parse(open(fasta), format="fasta"):
+        fp = open(fasta)
+        for record in parse(fp, format="fasta"):
             genome_pars += 1
             genome_len += len(record.seq)
+        fp.close()
     return genome_len, genome_pars
 
 
@@ -36,7 +38,9 @@ def get_read_count(in_bam_dir):
     """
     in_log = os.path.join(in_bam_dir, "Log.final.out")
     token = "Number of input reads"
-    line = next(filter(lambda l: token in l, open(in_log).readlines()))
+    fp = open(in_log)
+    line = next(filter(lambda l: token in l, fp.readlines()))
+    fp.close()
     return int(line.split("|")[1].strip())
 
 

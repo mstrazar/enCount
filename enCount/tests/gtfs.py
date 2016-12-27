@@ -11,8 +11,8 @@ import time
 
 # Mock system calls
 from mock import Mock
-# gtfs.rnastar.sp_call = Mock(return_value=0)
-gtfs.get_version_before = Mock(return_value="minimal")
+gtfs.rnastar.sp_call = Mock(return_value=0)
+gtfs.get_version_before = Mock(return_value="chM")
 
 class TestGtfs(unittest.TestCase):
     """
@@ -59,7 +59,6 @@ class TestGtfs(unittest.TestCase):
         # Check mapping
         mappings = list(db.gtfs.find({"gtf_ver": self.gtf_ver, "status": "ready"}))
         self.assertEqual(len(mappings), 1)
-        self.assertTrue(os.path.exists(self.in_gff))
 
 
     def test_process_queue(self):
@@ -78,7 +77,7 @@ class TestGtfs(unittest.TestCase):
         # Process outstanding requests; Mock submitted jobs explicitly
         empty = False
         while not empty:
-            gtfs.process(mock=False)
+            gtfs.process(mock=True)
             empty = queue.gtfs.is_empty()
 
         # Wait for database to refresh
@@ -91,7 +90,6 @@ class TestGtfs(unittest.TestCase):
         # Make sure results exist
         self.genome_dir = gtfs.get_genome_index_dir(self.gtf_ver)
         self.assertTrue(os.path.isdir(self.genome_dir))
-        self.assertTrue(os.path.exists(self.in_gff))
 
 
 if __name__ == "__main__":

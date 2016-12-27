@@ -1,3 +1,4 @@
+from enCount.config import PYTHON2_EXEC, DEXSEQ_PREP_ANNOTATION
 from subprocess import call as sp_call
 
 def gtf_to_gff(in_gtf, out_gff):
@@ -12,8 +13,6 @@ def gtf_to_gff(in_gtf, out_gff):
     :return:
         External process call status.
     """
-    args = ["/usr/bin/python",
-                    "/home/enuser/.R/DEXSeq/python_scripts/dexseq_prepare_annotation.py",
-                    in_gtf, out_gff]
+    args = [PYTHON2_EXEC, DEXSEQ_PREP_ANNOTATION, in_gtf, out_gff]
     print(" ".join(args))
     return sp_call(args)
