@@ -13,6 +13,11 @@
         docker run -i -t --volume-driver=nfs -v 192.168.27.50/encode:/endata ubuntu /bin/bash
 
 ## Run it in development
+Create two volumes needed for testing:
+
+       docker volume create --name=mongodata_test
+       docker volume create --name=endata_test
+
 Go into the enCount folder and start:
 
     docker-compose up
