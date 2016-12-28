@@ -28,7 +28,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-worker
-    working_dir: /home/enuser/enCount
+    working_dir: /home/enuser/
     depends_on:
       - redis
       - mongo
