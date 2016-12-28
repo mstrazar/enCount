@@ -39,6 +39,7 @@ services:
      - main
     volumes:
     - endata:/endata
+    - ./enCount:/home/enuser/enCount
 
   main:
     build:
@@ -46,6 +47,7 @@ services:
       dockerfile: Dockerfile-main
     volumes:
       - endata:/endata
+      - ./enCount:/home/enuser/enCount
     working_dir: /home/enuser/enCount
     depends_on:
       - redis
