@@ -61,6 +61,15 @@ RUN mkdir -p /home/enuser/bin && cp STAR /home/enuser/bin
 WORKDIR /tmp
 RUN rm -rfv STAR
 
+#################
+### Git LFS
+WORKDIR /tmp/git-lfs
+RUN wget https://github.com/git-lfs/git-lfs/releases/download/v1.5.4/git-lfs-linux-386-1.5.4.tar.gz
+RUN tar -xvzf git-lfs-linux-386-1.5.4.tar.gz
+WORKDIR /tmp/git-lfs/git-lfs-1.5.4/
+RUN ./install.sh
+WORKDIR /tmp/
+RUN rm -Rf git-lfs
 
 #################
 #### enCount
