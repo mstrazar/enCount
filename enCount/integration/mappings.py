@@ -6,6 +6,7 @@ import enCount.gtfs as gtfs
 import enCount.mappings as mappings
 import enCount.db as db
 from enCount.config import data_root, mappings_root, counts_root
+from enCount.integration.config import sync_test_data
 import shutil
 import datetime
 import time
@@ -26,6 +27,7 @@ class IntMappings:
     """
 
     def __init__(self, genome_name="chM", sample_name="SAMP_CHM"):
+        sync_test_data()
         db.mappings.drop()
 
         self.sample_name = sample_name

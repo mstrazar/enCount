@@ -4,6 +4,8 @@ import os
 import shutil
 from enCount.config import data_root, genomes_root, results_root
 import enCount.externals.rnastar as rnastar
+from enCount.integration.config import sync_test_data
+
 
 class IntRNASTAR:
 
@@ -25,6 +27,8 @@ class IntRNASTAR:
     }
 
     def __init__(self, genome_name="chM", sample_name="SAMP_CHM"):
+        sync_test_data()
+
         self.genome_name = genome_name
         self.sample_name = sample_name
         self.in_genome_fasta_dir = os.path.join(genomes_root, "fasta", self.genome_name)
