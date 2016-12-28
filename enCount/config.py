@@ -4,9 +4,10 @@ import os
 # folder configuration
 _config_root = os.path.split(os.path.abspath(__file__))[0]
 
-data_root = os.path.join('/endata/data')
-genomes_root = os.path.join('/endata/genomes')
-results_root = os.path.join('/endata/results')
+volume_root = "/endata/"
+data_root = os.path.join(volume_root, "data")
+genomes_root = os.path.join(volume_root, "genomes")
+results_root = os.path.join(volume_root, "results")
 
 mappings_root = os.path.join(results_root, "mappings")
 counts_root = os.path.join(results_root, "counts")
@@ -38,36 +39,13 @@ RAM_LIMIT = None
 PYTHON2_EXEC = "/usr/bin/python"
 DEXSEQ_PREP_ANNOTATION = "/home/enuser/.R/DEXSeq/python_scripts/dexseq_prepare_annotation.py"
 
+# Test data locations
+ENDATA_TEST_REPO = "https://github.com/mstrazar/enCount-data"
+
+
 # read (override) from local config
 try:
     from .myconfig import *
 except ImportError:
     print('enCount: You can define a local configuration in myconfig.py, '
           'which needs to be stored in folder: {:s}.'.format(_config_root))
-
-# create folders if not present yet
-if not os.path.exists(data_root):
-    print('Data root folder does not exist. Will create it at: '
-          '{:s}'.format(data_root))
-    os.makedirs(data_root)
-
-if not os.path.exists(genomes_root):
-    print('Genomes root folder does not exist. Will create it at: '
-          '{:s}'.format(genomes_root))
-    os.makedirs(genomes_root)
-
-if not os.path.exists(results_root):
-    print('Results root folder does not exist. Will create it at: '
-          '{:s}'.format(results_root))
-    os.makedirs(results_root)
-
-if not os.path.exists(mappings_root):
-    print('Results root folder does not exist. Will create it at: '
-          '{:s}'.format(mappings_root))
-    os.makedirs(mappings_root)
-
-if not os.path.exists(tmp_root):
-    print('Temporary files and folders root folder does not exist. '
-          'Will create it at: {:s}'.format(tmp_root))
-    os.makedirs(tmp_root)
-
