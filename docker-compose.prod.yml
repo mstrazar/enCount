@@ -6,4 +6,7 @@ volumes:
         version: 3
         share: "192.168.27.54:/enCount/storage"
   mongodata:
-    external: true
+    driver: nfs
+    driver_opts:
+        version: 3
+        share: "192.168.27.54:/enCount/storage/mongodb"

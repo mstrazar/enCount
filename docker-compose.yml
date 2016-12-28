@@ -56,5 +56,9 @@ services:
 
 volumes:
   endata:
+    external:
+      name: endata_test
   mongodata:
+    external:
+      name: mongodata_test
 
