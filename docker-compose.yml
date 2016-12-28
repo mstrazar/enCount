@@ -28,7 +28,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-worker
-    working_dir: /home/enuser/enCount
+    working_dir: /home/enuser/
     depends_on:
       - redis
       - mongo
@@ -39,6 +39,7 @@ services:
      - main
     volumes:
     - endata:/endata
+    - ./enCount:/home/enuser/enCount
 
   main:
     build:
@@ -46,6 +47,7 @@ services:
       dockerfile: Dockerfile-main
     volumes:
       - endata:/endata
+      - ./enCount:/home/enuser/enCount
     working_dir: /home/enuser/enCount
     depends_on:
       - redis

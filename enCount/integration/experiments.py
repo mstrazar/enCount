@@ -13,7 +13,7 @@ import enCount.experiments as experiments
 import enCount.gtfs as gtfs
 import enCount.integration.experiments_mock as ex_mock
 import enCount.mappings as mappings
-
+from enCount.integration.config import sync_test_data
 
 def mock_insert(sample_name="SAMP_CHM", genome_name="chM"):
     """
@@ -82,6 +82,8 @@ class IntExperiments:
         Empty databases prior to start
         :return:
         """
+        sync_test_data()
+
         db.fastqs.drop()
         db.mappings.drop()
         db.experiments.drop()
@@ -90,6 +92,7 @@ class IntExperiments:
         mock_insert(sample_name, genome_name)
         gtfs.get_version_before = Mock(return_value=genome_name)
         encode.get_online_list = Mock(return_value=ex_mock.get_online_list(sample_name))
+
 
         self.e_acc = sample_name
         self.gtf_ver = gtfs.get_version_before(datetime.datetime.now())
@@ -108,6 +111,8 @@ class IntExperiments:
         Fetch list of online experiments, store into database and enqueue for download
         :return:
         """
+        # TODO: test when current genome index does not exist
+
         online_experiments = encode.get_online_list()
         assert len(online_experiments) > 0
         gtf_ver = experiments.add_latest_set(online_experiments)

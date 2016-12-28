@@ -18,3 +18,4 @@ from . import gtfs
 from . import fastqs
 from . import experiments
 from . import mappings
+from . import integration
