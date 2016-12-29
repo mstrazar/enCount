@@ -11,8 +11,8 @@ RUN useradd -u 1010 -m -d /home/enuser enuser
 
 # Append repository to get the latest R version
 # Details: https://cloud.r-project.org/bin/linux/ubuntu/
-RUN gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E084DAB9
-RUN gpg -a --export E084DAB9 | sudo apt-key add -
+RUN gpg --keyserver hkp://pgp.mit.edu:80 --recv-keys E084DAB9; true
+RUN gpg -a --export E084DAB9 | apt-key add -
 RUN echo "deb http://cran.rstudio.com/bin/linux/ubuntu trusty/" >> /etc/apt/sources.list
 
 # update system and install prerequisites
@@ -55,7 +55,7 @@ RUN pip install HTSeq
 #################
 ### RNA-star
 
-# compile STAR from source
+# Compile STAR from source
 WORKDIR /tmp/STAR
 RUN wget https://github.com/alexdobin/STAR/archive/STAR_2.4.2a.tar.gz
 RUN tar -xvzf STAR_2.4.2a.tar.gz
@@ -64,6 +64,17 @@ RUN make STAR
 RUN mkdir -p /home/enuser/bin && cp STAR /home/enuser/bin
 WORKDIR /tmp
 RUN rm -rfv STAR
+
+
+#################
+### Git LFS
+WORKDIR /tmp/git-lfs
+RUN wget https://github.com/git-lfs/git-lfs/releases/download/v1.5.4/git-lfs-linux-386-1.5.4.tar.gz
+RUN tar -xvzf git-lfs-linux-386-1.5.4.tar.gz
+WORKDIR /tmp/git-lfs/git-lfs-1.5.4/
+RUN ./install.sh
+WORKDIR /tmp/
+RUN rm -Rf git-lfs
 
 
 #################
@@ -83,16 +94,23 @@ RUN chown -R enuser.enuser /endata
 
 USER enuser
 WORKDIR /home/enuser/enCount
-RUN ../.encountenv/bin/python setup.py develop
+RUN ../.encountenv/bin/pip install -e .
 
 
 #################
 ### Set up R env
+USER enuser
+RUN mkdir /tmp/Renv
+WORKDIR /tmp/Renv
 RUN export R_LIBS=/home/enuser/.R
 RUN mkdir -p /home/enuser/.R
 RUN wget "https://github.com/hartleys/QoRTs/releases/download/v1.1.8/QoRTs_1.1.8.tar.gz"
 RUN Rscript /home/enuser/enCount/install/install.R
 RUN rm QoRTs_1.1.8.tar.gz
+WORKDIR /tmp
+RUN rm -Rf Renv
+
+WORKDIR /home/enuser/
+CMD ["/home/enuser/.encountenv/bin/python3", "-m", "enCount.process_loop"]
 
 
-CMD ["/home/enuser/.encountenv/bin/rqworker", "--url", "redis://redis", "downloads", "gtfs", "mappings", "junctions"]
