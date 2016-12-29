@@ -33,7 +33,7 @@ JUNCTIONSEQ_R = os.path.join(_config_root, "externals", "libs", "JunctionSeq.R")
 RSCRIPT = "/usr/bin/Rscript"
 STAR_EXEC = "/home/enuser/bin/STAR"
 NUM_THREADS = 4
-RAM_LIMIT = None
+RAM_LIMIT = 1000570582
 
 # DEXSEQ requirements
 PYTHON2_EXEC = "/usr/bin/python"

@@ -373,6 +373,7 @@ def QoRTs_pipeline_call(e_acc, gtf_ver, decoder_by_sample, decoder_by_UID, out_j
         _update_dbrec_status(dbrec_id, "error_jseq")
         return
 
+    _update_dbrec_status(dbrec_id, "ready")
     return
 
 
