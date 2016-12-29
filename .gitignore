@@ -67,6 +67,3 @@ target/
 # OS X
 .DS_Store
 
-# enCount
-enCount/_version.py
-

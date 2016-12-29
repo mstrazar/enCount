@@ -5,3 +5,4 @@ pymongo
 mock
 biopython
 coverage
+rq-dashboard

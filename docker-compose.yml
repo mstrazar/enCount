@@ -14,9 +14,11 @@ services:
      - mongodata:/data
 
   rqdashboard:
-    build:
-      context: .
-      dockerfile: Dockerfile-rqdashboard
+    image: encount
+    entrypoint:
+     - /home/enuser/.encountenv/bin/rq-dashboard
+     - -H
+     - redis
     ports:
      - "9181:9181"
     depends_on:
@@ -25,10 +27,16 @@ services:
      - redis
 
   worker:
-    build:
-      context: .
-      dockerfile: Dockerfile-worker
+    image: encount
     working_dir: /home/enuser/
+    entrypoint:
+     - /home/enuser/.encountenv/bin/rqworker
+     - --url
+     - redis://redis
+     - downloads
+     - gtfs
+     - mappings
+     - junctions
     depends_on:
       - redis
       - mongo
@@ -44,11 +52,12 @@ services:
   main:
     build:
       context: .
-      dockerfile: Dockerfile-main
+      dockerfile: Dockerfile
+    image: encount
+    working_dir: /home/enuser/
     volumes:
       - endata:/endata
       - ./enCount:/home/enuser/enCount
-    working_dir: /home/enuser/enCount
     depends_on:
       - redis
       - mongo
