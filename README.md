@@ -3,3 +3,5 @@
 [![Docker Automated build](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/tomazc/encount/)
 
 # enCount - computational pipeline for the analysis of ENCODE data
+
+Docker-based automatic data retrieval, alignment and management from the ENCODE project.
